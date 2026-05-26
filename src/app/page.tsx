@@ -135,64 +135,485 @@ const fetchGeminiAPI = async (systemInstruction: string, promptText: string, res
   return result;
 };
 
-// --- PREMIUM ANIMATED SVG/CSS GRAPHIC REPRESENTING SPINE HEALTH ---
-const InteractiveSpineVisualizer = ({ exerciseId }: { exerciseId: number }) => {
-  // Rotate different nodes based on the current exercise active state to look interactive
-  const offsetDeg = (exerciseId * 26) % 360;
-  
+// --- DYNAMIC BIOLOGICAL ANATOMICAL HUMAN MOVEMENT VISUALIZER ---
+const HumanExerciseVisualizer = ({ exerciseId }: { exerciseId: number }) => {
+  const [t, setT] = useState(0);
+
+  // Buttery-smooth 60fps physics simulation loop
+  useEffect(() => {
+    let animId: number;
+    const startTime = Date.now();
+    const loop = () => {
+      // 3.5 second cycle for a natural execution speed
+      const elapsed = (Date.now() - startTime) / 1000;
+      const cycleTime = (elapsed % 3.5) / 3.5;
+      setT(cycleTime * 2 * Math.PI);
+      animId = requestAnimationFrame(loop);
+    };
+    animId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animId);
+  }, [exerciseId]);
+
+  // Movement interpolation factor (0 to 1 back and forth)
+  const s = (Math.sin(t) + 1) / 2;
+
+  // Let's declare our joint rendering coordinates
+  let head = { x: 100, y: 40 };
+  let shoulder = { x: 100, y: 60 };
+  let elbow = { x: 120, y: 80 };
+  let hand = { x: 135, y: 95 };
+  let hip = { x: 100, y: 105 };
+  let knee1 = { x: 85, y: 138 }; // Left / Active
+  let ankle1 = { x: 85, y: 170 };
+  let knee2 = { x: 115, y: 138 }; // Right / Static
+  let ankle2 = { x: 115, y: 170 };
+
+  // Custom objects for environment
+  let chair = null;
+  let wall = null;
+  let floorY = 170;
+  let renderStyle = "standing"; // standing, supine, prone, all-fours
+
+  // Compute exact biologically correct anatomical coordinates for each exercise
+  if (exerciseId === 1) {
+    // 1. Wall Slides (Standing Squat against wall)
+    renderStyle = "standing";
+    wall = { x: 70, y1: 20, y2: 185 };
+    
+    // Hip and torso slide down the wall
+    const slideOffset = 25 * s;
+    head = { x: 85, y: 40 + slideOffset };
+    shoulder = { x: 85, y: 58 + slideOffset };
+    elbow = { x: 105, y: 75 + slideOffset };
+    hand = { x: 115, y: 90 + slideOffset };
+    hip = { x: 85, y: 102 + slideOffset };
+    
+    // Left & Right legs squat forward
+    // Ankles stay flat, knees bend forward and down
+    knee1 = { x: 108 + 5 * s, y: 138 + 10 * s };
+    ankle1 = { x: 88, y: 170 };
+    knee2 = { x: 108 + 5 * s, y: 138 + 10 * s };
+    ankle2 = { x: 88, y: 170 };
+
+  } else if (exerciseId === 2) {
+    // 2. Back Leg Swing (Standing behind chair)
+    renderStyle = "standing";
+    chair = { x: 130, y: 90 };
+    
+    head = { x: 95 - 4 * s, y: 40 + 2 * s };
+    shoulder = { x: 95 - 4 * s, y: 58 + 2 * s };
+    // Hands holding the chair backrest
+    elbow = { x: 112, y: 75 };
+    hand = { x: 130, y: 90 };
+    hip = { x: 95, y: 102 };
+    
+    // Right leg stands straight (Static)
+    knee2 = { x: 95, y: 136 };
+    ankle2 = { x: 95, y: 170 };
+    
+    // Left leg swings back (Active)
+    knee1 = { x: 95 - 16 * s, y: 136 - 4 * s };
+    ankle1 = { x: 95 - 28 * s, y: 170 - 12 * s };
+
+  } else if (exerciseId === 3) {
+    // 3. Knee to Chest (Supine Single Leg Pull)
+    renderStyle = "supine";
+    floorY = 150;
+    
+    head = { x: 50, y: 140 };
+    shoulder = { x: 70, y: 142 };
+    hip = { x: 115, y: 142 };
+    
+    // Right leg straight on floor
+    knee2 = { x: 145, y: 142 };
+    ankle2 = { x: 175, y: 142 };
+    
+    // Left leg pulls to chest (knee bends up, ankle slides closer)
+    knee1 = { x: 145 - 50 * s, y: 142 - 38 * s };
+    ankle1 = { x: 175 - 75 * s, y: 142 - 8 * s };
+    
+    // Hands clasp knee to pull it
+    elbow = { x: 85 + 5 * s, y: 130 - 15 * s };
+    hand = { x: 145 - 50 * s, y: 142 - 38 * s };
+
+  } else if (exerciseId === 4) {
+    // 4. Lower Abdominal Exercises (Supine Double Knees Pull)
+    renderStyle = "supine";
+    floorY = 150;
+    
+    head = { x: 50, y: 140 };
+    shoulder = { x: 70, y: 142 };
+    hip = { x: 115, y: 142 };
+    
+    // Both knees pull to chest together
+    knee1 = { x: 145 - 45 * s, y: 142 - 38 * s };
+    ankle1 = { x: 175 - 70 * s, y: 142 - 15 * s };
+    knee2 = { x: 145 - 45 * s, y: 142 - 38 * s };
+    ankle2 = { x: 175 - 70 * s, y: 142 - 15 * s };
+    
+    elbow = { x: 85 + 5 * s, y: 130 - 15 * s };
+    hand = { x: 145 - 45 * s, y: 142 - 38 * s };
+
+  } else if (exerciseId === 5) {
+    // 5. Knees to Chest Exercise (Supine Alternate Straight Leg Raise)
+    renderStyle = "supine";
+    floorY = 150;
+    
+    head = { x: 50, y: 140 };
+    shoulder = { x: 70, y: 142 };
+    hip = { x: 115, y: 142 };
+    
+    // Hand relaxed at side
+    elbow = { x: 90, y: 142 };
+    hand = { x: 105, y: 142 };
+    
+    // Right leg flat on floor
+    knee2 = { x: 145, y: 142 };
+    ankle2 = { x: 175, y: 142 };
+    
+    // Left leg raises straight up (knee straight, ankle swings up)
+    // At s = 1, leg points straight up
+    knee1 = { x: 145 - 18 * s, y: 142 - 40 * s };
+    ankle1 = { x: 175 - 42 * s, y: 142 - 76 * s };
+
+  } else if (exerciseId === 6) {
+    // 6. Pelvic Tilt (Supine Lower Back Press)
+    renderStyle = "supine";
+    floorY = 150;
+    
+    head = { x: 50, y: 140 };
+    shoulder = { x: 70, y: 142 };
+    
+    // Knees slightly bent, feet flat
+    hip = { x: 115, y: 142 };
+    knee1 = { x: 135, y: 125 };
+    ankle1 = { x: 155, y: 142 };
+    knee2 = { x: 135, y: 125 };
+    ankle2 = { x: 155, y: 142 };
+    
+    elbow = { x: 90, y: 142 };
+    hand = { x: 105, y: 142 };
+    
+    // Pelvis rotates/presses down. Lumbar spine (between shoulder & hip) dips down
+    // Highlight lumbar region morphing Y
+    hip = { x: 115, y: 142 + 2.5 * s };
+
+  } else if (exerciseId === 7) {
+    // 7. Hip Rolling (Supine Knees Roll Side-to-Side)
+    renderStyle = "supine";
+    floorY = 150;
+    
+    head = { x: 50, y: 140 };
+    shoulder = { x: 70, y: 142 };
+    hip = { x: 115, y: 142 };
+    
+    elbow = { x: 80, y: 130 };
+    hand = { x: 80, y: 115 }; // arms crossed over chest
+    
+    // Knees bent, feet flat. Knees sway left & right
+    const rollAngle = Math.sin(t); // goes -1 to +1
+    knee1 = { x: 132 + 20 * rollAngle, y: 122 + 12 * Math.abs(rollAngle) };
+    ankle1 = { x: 150, y: 142 };
+    knee2 = { x: 132 + 20 * rollAngle, y: 122 + 12 * Math.abs(rollAngle) };
+    ankle2 = { x: 150, y: 142 };
+
+  } else if (exerciseId === 8) {
+    // 8. Pelvic Lift (Supine Glute Bridge Lift)
+    renderStyle = "supine";
+    floorY = 150;
+    
+    head = { x: 50, y: 140 };
+    shoulder = { x: 70, y: 142 }; // stays flat on mat
+    
+    elbow = { x: 90, y: 142 };
+    hand = { x: 105, y: 142 };
+    
+    // Hips and knees lift up together in a bridge pose
+    const liftOffset = 30 * s;
+    hip = { x: 115, y: 142 - liftOffset };
+    knee1 = { x: 138 - 8 * s, y: 125 - 12 * s };
+    ankle1 = { x: 148, y: 142 };
+    knee2 = { x: 138 - 8 * s, y: 125 - 12 * s };
+    ankle2 = { x: 148, y: 142 };
+
+  } else if (exerciseId === 9) {
+    // 9. Leg Raises (Prone Single Leg Lift)
+    renderStyle = "prone";
+    floorY = 150;
+    
+    head = { x: 50, y: 142 };
+    shoulder = { x: 70, y: 142 };
+    hip = { x: 115, y: 142 };
+    
+    elbow = { x: 60, y: 145 };
+    hand = { x: 50, y: 145 };
+    
+    // Right leg stays straight on mat
+    knee2 = { x: 145, y: 142 };
+    ankle2 = { x: 175, y: 142 };
+    
+    // Left leg lifts straight up off ground
+    knee1 = { x: 145 + 3 * s, y: 142 - 12 * s };
+    ankle1 = { x: 175 + 6 * s, y: 142 - 25 * s };
+
+  } else if (exerciseId === 10) {
+    // 10. Hip Extension (Prone Thigh Lift, Knee Bent 90deg)
+    renderStyle = "prone";
+    floorY = 150;
+    
+    head = { x: 50, y: 142 };
+    shoulder = { x: 70, y: 142 };
+    hip = { x: 115, y: 142 };
+    
+    elbow = { x: 60, y: 145 };
+    hand = { x: 50, y: 145 };
+    
+    // Right leg straight
+    knee2 = { x: 145, y: 142 };
+    ankle2 = { x: 175, y: 142 };
+    
+    // Left knee bends 90 degrees and thigh lifts up
+    // Knee starts at (145, 142), bends Y to lift
+    knee1 = { x: 145, y: 142 - 10 * s };
+    ankle1 = { x: 145 - 2 * s, y: 112 - 10 * s }; // Ankle bent 90deg (foot facing ceiling)
+
+  } else if (exerciseId === 11) {
+    // 11. Hip Extension All-Fours (Kneeling leg extension)
+    renderStyle = "all-fours";
+    floorY = 150;
+    
+    // Supporting elements
+    hand = { x: 75, y: 150 };
+    elbow = { x: 75, y: 130 };
+    shoulder = { x: 75, y: 110 };
+    
+    // Right knee supports on floor (Static)
+    knee2 = { x: 120, y: 150 };
+    ankle2 = { x: 135, y: 150 };
+    
+    // Left leg extends straight out parallel to floor
+    hip = { x: 120, y: 110 };
+    knee1 = { x: 120 + 25 * s, y: 150 - 40 * s }; // moves to Y=110
+    ankle1 = { x: 120 + 55 * s, y: 150 - 40 * s }; // extends back straight
+    
+    // Spine alignment arches slightly
+    head = { x: 55, y: 110 - 6 * s };
+
+  } else if (exerciseId === 12) {
+    // 12. Hand-Knee Rocking (Kneeling Child Stretch Rocking)
+    renderStyle = "all-fours";
+    floorY = 150;
+    
+    // Rocking factor moves the whole torso back & down
+    const rockOffset = 30 * s;
+    
+    hand = { x: 75, y: 150 }; // Hands anchored flat
+    elbow = { x: 75 + 10 * s, y: 130 + 15 * s }; // arms stretch out
+    shoulder = { x: 75 + 28 * s, y: 110 + 25 * s }; // shoulders drop
+    
+    knee1 = { x: 120, y: 150 }; // Knees anchored flat
+    ankle1 = { x: 135, y: 150 };
+    knee2 = { x: 120, y: 150 };
+    ankle2 = { x: 135, y: 150 };
+    
+    hip = { x: 120 - 15 * s, y: 110 + 35 * s }; // Hips rock onto heels
+    head = { x: 55 + 28 * s, y: 110 + 26 * s }; // Head bows to floor
+
+  } else if (exerciseId === 13) {
+    // 13. Press Up (Prone Cobra Spine Arch)
+    renderStyle = "prone";
+    floorY = 150;
+    
+    // Lower body remains anchored on mat
+    hip = { x: 115, y: 142 };
+    knee1 = { x: 145, y: 142 };
+    ankle1 = { x: 175, y: 142 };
+    knee2 = { x: 145, y: 142 };
+    ankle2 = { x: 175, y: 142 };
+    
+    // Upper body pushes up (Shoulders, head lift, spine arches)
+    const pushUpOffset = 38 * s;
+    shoulder = { x: 70, y: 142 - pushUpOffset };
+    head = { x: 50 + 10 * s, y: 142 - 48 * s }; // Looks up
+    
+    // Hands remain anchored on floor
+    hand = { x: 70, y: 150 };
+    elbow = { x: 70, y: 145 - pushUpOffset * 0.5 }; // arms straighten
+  }
+
+  // Helper: Glowing joint node
+  const JointNode = ({ cx, cy, label = "" }: { cx: number; cy: number; label?: string }) => (
+    <g>
+      <circle cx={cx} cy={cy} r="4.5" fill="#090d16" stroke="#14b8a6" strokeWidth="2.5" className="shadow-[0_0_10px_rgba(20,184,166,0.8)]" />
+      <circle cx={cx} cy={cy} r="1.5" fill="#f8fafc" />
+    </g>
+  );
+
   return (
-    <div className="relative w-full h-64 md:h-80 flex items-center justify-center overflow-hidden rounded-3xl border border-white/5 bg-slate-950/40 shadow-inner mb-6">
-      {/* Decorative dynamic glows */}
-      <div className="absolute inset-0 bg-teal-500/5 animate-pulse blur-3xl rounded-full scale-75"></div>
-      <div className="absolute inset-0 bg-indigo-500/5 blur-3xl rounded-full scale-50" style={{ animationDelay: '2s' }}></div>
+    <div className="relative w-full h-64 md:h-80 flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-white/5 bg-slate-950/40 shadow-inner mb-6">
       
-      {/* Dynamic graphic */}
-      <svg className="w-48 h-48 md:w-64 md:h-64 relative z-10 transition-transform duration-1000 ease-out" 
-           viewBox="0 0 200 200" 
-           style={{ transform: `rotate(${offsetDeg * 0.1}deg)` }}>
-        
-        {/* Outer Orbit Ring */}
-        <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(20, 184, 166, 0.15)" strokeWidth="1" strokeDasharray="5,15" />
-        
-        {/* Core Spine Visual Structure */}
-        {/* Lumbar Spine Segments (L1 - L5) represented by glowing capsule blocks */}
-        <g stroke="rgba(99, 102, 241, 0.4)" strokeWidth="2">
-          {/* L1 */}
-          <rect x="88" y="45" width="24" height="12" rx="4" fill="rgba(15, 23, 42, 0.8)" className="animate-pulse" style={{ animationDuration: '3s' }} />
-          {/* L2 */}
-          <rect x="86" y="62" width="28" height="14" rx="4" fill="rgba(15, 23, 42, 0.8)" />
-          {/* L3 */}
-          <rect x="84" y="81" width="32" height="16" rx="5" fill="rgba(20, 184, 166, 0.15)" stroke="rgba(20, 184, 166, 0.6)" />
-          {/* L4 */}
-          <rect x="82" y="102" width="36" height="18" rx="5" fill="rgba(15, 23, 42, 0.8)" />
-          {/* L5 */}
-          <rect x="80" y="125" width="40" height="20" rx="6" fill="rgba(15, 23, 42, 0.8)" />
+      {/* Dynamic premium glows */}
+      <div className="absolute inset-0 bg-teal-500/5 animate-pulse blur-3xl rounded-full scale-75"></div>
+      <div className="absolute inset-0 bg-indigo-500/5 blur-3xl rounded-full scale-50" style={{ animationDelay: "1.5s" }}></div>
+      
+      {/* The high-fidelity skeletal simulator canvas */}
+      <svg className="w-56 h-56 md:w-72 md:h-72 relative z-10" viewBox="0 0 200 200">
+        <defs>
+          {/* Neon Gradients */}
+          <linearGradient id="spineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#6366f1" />
+            <stop offset="100%" stopColor="#d946ef" />
+          </linearGradient>
+          <linearGradient id="limbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#14b8a6" />
+            <stop offset="100%" stopColor="#10b981" />
+          </linearGradient>
+          
+          {/* Glowing Shadow Filters */}
+          <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* Ambient Grid overlay for medical interface feel */}
+        <g stroke="rgba(255,255,255,0.02)" strokeWidth="0.5">
+          <line x1="20" y1="0" x2="20" y2="200" />
+          <line x1="40" y1="0" x2="40" y2="200" />
+          <line x1="60" y1="0" x2="60" y2="200" />
+          <line x1="80" y1="0" x2="80" y2="200" />
+          <line x1="100" y1="0" x2="100" y2="200" />
+          <line x1="120" y1="0" x2="120" y2="200" />
+          <line x1="140" y1="0" x2="140" y2="200" />
+          <line x1="160" y1="0" x2="160" y2="200" />
+          <line x1="180" y1="0" x2="180" y2="200" />
+          <line x1="0" y1="20" x2="200" y2="20" />
+          <line x1="0" y1="40" x2="200" y2="40" />
+          <line x1="0" y1="60" x2="200" y2="60" />
+          <line x1="0" y1="80" x2="200" y2="80" />
+          <line x1="0" y1="100" x2="200" y2="100" />
+          <line x1="0" y1="120" x2="200" y2="120" />
+          <line x1="0" y1="140" x2="200" y2="140" />
+          <line x1="0" y1="160" x2="200" y2="160" />
+          <line x1="0" y1="180" x2="200" y2="180" />
         </g>
 
-        {/* Vertebral Discs (representing support/health cushions) */}
-        <ellipse cx="100" cy="60" rx="10" ry="2" fill="#14b8a6" className="opacity-80" />
-        <ellipse cx="100" cy="79" rx="11" ry="2.5" fill="#6366f1" className="opacity-80" />
-        <ellipse cx="100" cy="100" rx="12" ry="2.5" fill="#14b8a6" className="opacity-90 shadow-lg" />
-        <ellipse cx="100" cy="122" rx="13" ry="3" fill="#6366f1" className="opacity-80" />
+        {/* 1. Support Structures (Floor, Wall, Chair) */}
+        <line x1="20" y1={floorY} x2="180" y2={floorY} stroke="rgba(255,255,255,0.15)" strokeWidth="2.5" strokeLinecap="round" />
+        {wall && (
+          <line x1={wall.x} y1={wall.y1} x2={wall.x} y2={wall.y2} stroke="rgba(255,255,255,0.15)" strokeWidth="2.5" strokeLinecap="round" />
+        )}
+        {chair && (
+          <g stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none" strokeLinecap="round">
+            <line x1={chair.x} y1={chair.y} x2={chair.x} y2="170" />
+            <line x1={chair.x} y1={chair.y} x2={chair.x + 20} y2={chair.y} />
+            <line x1={chair.x + 20} y1={chair.y} x2={chair.x + 20} y2="170" />
+            <line x1={chair.x} y1={chair.y + 25} x2={chair.x + 20} y2={chair.y + 25} /> {/* Seat */}
+          </g>
+        )}
+
+        {/* 2. Stylized Muscle Contour / Silhouette Body Outline */}
+        {/* Draw a subtle glow path that fits around the joints to make it look like a real body */}
+        <g fill="rgba(99, 102, 241, 0.04)" stroke="rgba(99, 102, 241, 0.08)" strokeWidth="1" filter="url(#neonGlow)">
+          <path d={`
+            M ${head.x} ${head.y - 12}
+            C ${head.x + 12} ${head.y - 12}, ${head.x + 12} ${head.y + 12}, ${head.x} ${head.y + 12}
+            C ${head.x - 12} ${head.y + 12}, ${head.x - 12} ${head.y - 12}, ${head.x} ${head.y - 12} Z
+          `} />
+          <path d={`
+            M ${shoulder.x} ${shoulder.y - 6}
+            L ${hip.x} ${hip.y - 6}
+            L ${knee1.x} ${knee1.y - 4}
+            L ${ankle1.x} ${ankle1.y}
+            L ${ankle1.x + 4} ${ankle1.y + 4}
+            L ${ankle1.x - 4} ${ankle1.y + 4}
+            L ${knee1.x - 4} ${knee1.y + 4}
+            L ${hip.x - 6} ${hip.y + 6}
+            L ${shoulder.x - 6} ${shoulder.y + 6} Z
+          `} />
+        </g>
+
+        {/* 3. SKELETON / BONES SEGMENTS */}
+        <g fill="none" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#neonGlow)">
+          {/* Spine (glowing purple-magenta gradient) */}
+          <line x1={shoulder.x} y1={shoulder.y} x2={hip.x} y2={hip.y} stroke="url(#spineGrad)" />
+          
+          {/* Left Arm (Active) */}
+          <path d={`M ${shoulder.x} ${shoulder.y} L ${elbow.x} ${elbow.y} L ${hand.x} ${hand.y}`} stroke="url(#limbGrad)" strokeWidth="3.5" />
+          
+          {/* Supporting Leg (Right Leg) */}
+          <path d={`M ${hip.x} ${hip.y} L ${knee2.x} ${knee2.y} L ${ankle2.x} ${ankle2.y}`} stroke="rgba(20, 184, 166, 0.3)" strokeWidth="4.5" />
+          
+          {/* Active Leg (Left Leg) */}
+          <path d={`M ${hip.x} ${hip.y} L ${knee1.x} ${knee1.y} L ${ankle1.x} ${ankle1.y}`} stroke="url(#limbGrad)" />
+        </g>
+
+        {/* 4. ANATOMICAL CORES / MUSCLE TENSION GLOW */}
+        {/* Glow core in the lower back/lumbar segment representing muscle engagement */}
+        <circle 
+          cx={(hip.x + shoulder.x) / 2} 
+          cy={(hip.y + shoulder.y) / 2} 
+          r={7 + 3.5 * s} 
+          fill="rgba(245, 158, 11, 0.08)" 
+          stroke="rgba(245, 158, 11, 0.6)" 
+          strokeWidth="1.5" 
+          strokeDasharray="2,2"
+          className="animate-spin"
+          style={{ transformOrigin: `${(hip.x + shoulder.x) / 2}px ${(hip.y + shoulder.y) / 2}px`, animationDuration: "10s" }} 
+        />
         
-        {/* Floating Health Energy Nodes */}
-        <circle cx="50" cy="80" r="4" fill="#14b8a6" className="animate-bounce" style={{ animationDuration: '4s' }} />
-        <circle cx="150" cy="120" r="3" fill="#6366f1" className="animate-bounce" style={{ animationDuration: '3s', animationDelay: '1s' }} />
-        <circle cx="135" cy="55" r="5" fill="#f59e0b" className="animate-pulse" style={{ animationDuration: '2s' }} />
-        
-        {/* Spine alignment axis indicator */}
-        <line x1="100" y1="25" x2="100" y2="160" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="3,3" />
+        {/* 5. JOINTS NODES */}
+        <g>
+          {/* Head */}
+          <circle cx={head.x} cy={head.y} r="8.5" fill="#090d16" stroke="#6366f1" strokeWidth="2.5" />
+          <circle cx={head.x - 2.5} cy={head.y - 1} r="1" fill="#f8fafc" /> {/* Eye/Face Direction indicator */}
+          
+          {/* Neck */}
+          <line x1={head.x} y1={head.y + 8.5} x2={shoulder.x} y2={shoulder.y} stroke="rgba(255,255,255,0.2)" strokeWidth="2.5" />
+          
+          {/* Shoulder */}
+          <JointNode cx={shoulder.x} cy={shoulder.y} />
+          
+          {/* Elbow */}
+          <JointNode cx={elbow.x} cy={elbow.y} />
+          
+          {/* Hand */}
+          <circle cx={hand.x} cy={hand.y} r="3" fill="#10b981" />
+          
+          {/* Hip */}
+          <JointNode cx={hip.x} cy={hip.y} />
+          
+          {/* Left Knee */}
+          <JointNode cx={knee1.x} cy={knee1.y} />
+          
+          {/* Left Ankle */}
+          <JointNode cx={ankle1.x} cy={ankle1.y} />
+          
+          {/* Right Knee */}
+          <circle cx={knee2.x} cy={knee2.y} r="3.5" fill="#090d16" stroke="rgba(20, 184, 166, 0.4)" strokeWidth="2" />
+          
+          {/* Right Ankle */}
+          <circle cx={ankle2.x} cy={ankle2.y} r="3.5" fill="#090d16" stroke="rgba(20, 184, 166, 0.4)" strokeWidth="2" />
+        </g>
       </svg>
-      
-      {/* Caption overlay */}
-      <div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none">
-        <span className="text-[10px] font-semibold text-teal-400/80 tracking-widest uppercase bg-slate-950/80 px-3 py-1 rounded-full border border-teal-500/20 backdrop-blur-md">
-          Vertebral Support L1-L5 Visualizer
+
+      {/* Visualizer Metadata Info Panel */}
+      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-20 pointer-events-none">
+        <span className="text-[9px] font-bold text-teal-400/90 tracking-widest uppercase bg-slate-950/80 px-2.5 py-1 rounded-lg border border-teal-500/10 backdrop-blur-md shadow-lg">
+          {renderStyle} rehab state
+        </span>
+        <span className="text-[9px] font-bold text-indigo-400/90 tracking-widest uppercase bg-slate-950/80 px-2.5 py-1 rounded-lg border border-indigo-500/10 backdrop-blur-md shadow-lg flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-ping"></span> 
+          Active Trajectory
         </span>
       </div>
     </div>
   );
 };
+
 
 export default function App() {
   // App Core State
@@ -699,8 +1120,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* 3D Representation Area */}
-        <InteractiveSpineVisualizer exerciseId={exercise.id} />
+        {/* Interactive Anatomical Human Exercise Simulator */}
+        <HumanExerciseVisualizer exerciseId={exercise.id} />
 
         {/* Exercise Description Container */}
         <div className="flex-1 flex flex-col justify-center space-y-6">
