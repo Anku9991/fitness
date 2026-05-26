@@ -135,74 +135,43 @@ const fetchGeminiAPI = async (systemInstruction: string, promptText: string, res
   return result;
 };
 
-// --- REALISTIC 3D HUMAN EXERCISE VISUALIZER (ANIMATED) ---
-const EXERCISE_META: Record<number, { pose: string; label: string; muscles: string; hasAlt: boolean }> = {
-  1: { pose: "Standing", label: "Wall Squat", muscles: "Quads \u2022 Glutes", hasAlt: true },
-  2: { pose: "Standing", label: "Leg Swing", muscles: "Hip Flexors \u2022 Glutes", hasAlt: true },
-  3: { pose: "Lying", label: "Knee Pull", muscles: "Lower Back \u2022 Hip", hasAlt: true },
-  4: { pose: "Lying", label: "Double Knee", muscles: "Lower Back \u2022 Core", hasAlt: true },
-  5: { pose: "Lying", label: "Leg Raise", muscles: "Core \u2022 Hip Flexors", hasAlt: false },
-  6: { pose: "Lying", label: "Pelvic Tilt", muscles: "Core \u2022 Lumbar", hasAlt: false },
-  7: { pose: "Lying", label: "Hip Roll", muscles: "Obliques \u2022 Spine", hasAlt: false },
-  8: { pose: "Lying", label: "Bridge", muscles: "Glutes \u2022 Hamstrings", hasAlt: false },
-  9: { pose: "Prone", label: "Leg Lift", muscles: "Glutes \u2022 Lower Back", hasAlt: false },
-  10: { pose: "Prone", label: "Hip Ext.", muscles: "Glutes \u2022 Hamstrings", hasAlt: false },
-  11: { pose: "All-Fours", label: "Bird Dog", muscles: "Core \u2022 Balance", hasAlt: false },
-  12: { pose: "All-Fours", label: "Child Rock", muscles: "Spine \u2022 Relaxation", hasAlt: false },
-  13: { pose: "Prone", label: "Press-Up", muscles: "Lower Back \u2022 Core", hasAlt: false },
-};
-
-// CSS motion configs for exercises without alternate images
-const EXERCISE_MOTION: Record<number, string> = {
-  5: "exMotionLegRaise",
-  6: "exMotionPelvicTilt",
-  7: "exMotionHipRoll",
-  8: "exMotionBridge",
-  9: "exMotionProneLeg",
-  10: "exMotionHipExt",
-  11: "exMotionBirdDog",
-  12: "exMotionChildRock",
-  13: "exMotionPressUp",
+// --- REALISTIC 3D HUMAN EXERCISE VISUALIZER (PREMIUM VIDEO) ---
+const EXERCISE_META: Record<number, { pose: string; label: string; muscles: string }> = {
+  1: { pose: "Standing", label: "Wall Squat", muscles: "Quads \u2022 Glutes" },
+  2: { pose: "Standing", label: "Leg Swing", muscles: "Hip Flexors \u2022 Glutes" },
+  3: { pose: "Lying", label: "Knee Pull", muscles: "Lower Back \u2022 Hip" },
+  4: { pose: "Lying", label: "Double Knee", muscles: "Lower Back \u2022 Core" },
+  5: { pose: "Lying", label: "Leg Raise", muscles: "Core \u2022 Hip Flexors" },
+  6: { pose: "Lying", label: "Pelvic Tilt", muscles: "Core \u2022 Lumbar" },
+  7: { pose: "Lying", label: "Hip Roll", muscles: "Obliques \u2022 Spine" },
+  8: { pose: "Lying", label: "Bridge", muscles: "Glutes \u2022 Hamstrings" },
+  9: { pose: "Prone", label: "Leg Lift", muscles: "Glutes \u2022 Lower Back" },
+  10: { pose: "Prone", label: "Hip Ext.", muscles: "Glutes \u2022 Hamstrings" },
+  11: { pose: "All-Fours", label: "Bird Dog", muscles: "Core \u2022 Balance" },
+  12: { pose: "All-Fours", label: "Child Rock", muscles: "Spine \u2022 Relaxation" },
+  13: { pose: "Prone", label: "Press-Up", muscles: "Lower Back \u2022 Core" },
 };
 
 const HumanExerciseVisualizer = ({ exerciseId }: { exerciseId: number }) => {
-  const meta = EXERCISE_META[exerciseId] || { pose: "Active", label: "Exercise", muscles: "Full Body", hasAlt: false };
-  const [imgALoaded, setImgALoaded] = useState(false);
-  const [imgBLoaded, setImgBLoaded] = useState(false);
-  const [imgError, setImgError] = useState(false);
-  const [showPoseA, setShowPoseA] = useState(true);
+  const meta = EXERCISE_META[exerciseId] || { pose: "Active", label: "Exercise", muscles: "Full Body" };
+  const [vidLoaded, setVidLoaded] = useState(false);
+  const [vidError, setVidError] = useState(false);
   const [repCount, setRepCount] = useState(0);
 
+  // Reset state on exercise change
   useEffect(() => {
-    setImgALoaded(false);
-    setImgBLoaded(false);
-    setImgError(false);
-    setShowPoseA(true);
+    setVidLoaded(false);
+    setVidError(false);
     setRepCount(0);
   }, [exerciseId]);
 
-  // Crossfade timer for exercises with alternate images
+  // Simulate a rep counter based on the 5-second video duration
   useEffect(() => {
-    if (!meta.hasAlt) return;
-    const interval = setInterval(() => {
-      setShowPoseA(prev => {
-        if (prev) setRepCount(c => c + 1);
-        return !prev;
-      });
-    }, 2500);
-    return () => clearInterval(interval);
-  }, [exerciseId, meta.hasAlt]);
-
-  // Rep counter for non-alt exercises
-  useEffect(() => {
-    if (meta.hasAlt) return;
     const interval = setInterval(() => {
       setRepCount(c => c + 1);
-    }, 3000);
+    }, 5000);
     return () => clearInterval(interval);
-  }, [exerciseId, meta.hasAlt]);
-
-  const motionClass = !meta.hasAlt ? EXERCISE_MOTION[exerciseId] : undefined;
+  }, [exerciseId]);
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-white/[0.06] mb-6 group" style={{ minHeight: 340, background: "linear-gradient(135deg, #080c14 0%, #0c1220 40%, #0a0f1a 100%)" }}>
@@ -216,60 +185,44 @@ const HumanExerciseVisualizer = ({ exerciseId }: { exerciseId: number }) => {
       {/* Grid overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
 
-      {/* ANIMATED EXERCISE IMAGES */}
+      {/* PREMIUM VIDEO PLAYER */}
       <div className="relative z-10 flex items-center justify-center w-full" style={{ minHeight: 300 }}>
-        {!imgError ? (
+        {!vidError ? (
           <>
-            {/* Primary exercise pose */}
-            <img
-              src={`/exercises/exercise_${exerciseId}.png`}
-              alt={`${meta.label} - active position`}
-              onLoad={() => setImgALoaded(true)}
-              onError={() => setImgError(true)}
-              className="absolute select-none"
+            <video
+              src={`/videos/exercise_${exerciseId}.mp4`}
+              autoPlay
+              loop
+              muted
+              playsInline
+              onLoadedData={() => setVidLoaded(true)}
+              onError={() => setVidError(true)}
+              className="absolute select-none rounded-xl"
               style={{
                 maxHeight: 310,
                 maxWidth: "92%",
                 objectFit: "contain",
                 filter: "drop-shadow(0 8px 32px rgba(20,184,166,0.18))",
-                opacity: meta.hasAlt ? (showPoseA ? 1 : 0) : 1,
-                transition: meta.hasAlt ? "opacity 0.8s ease-in-out" : "none",
-                animation: !meta.hasAlt && imgALoaded ? `${motionClass} 3s ease-in-out infinite` : undefined,
+                opacity: vidLoaded ? 1 : 0,
+                transition: "opacity 0.8s ease-in-out",
               }}
-              draggable={false}
             />
 
-            {/* Alternate start-position image (exercises 1-4) */}
-            {meta.hasAlt && (
-              <img
-                src={`/exercises/exercise_${exerciseId}b.png`}
-                alt={`${meta.label} - start position`}
-                onLoad={() => setImgBLoaded(true)}
-                className="absolute select-none"
-                style={{
-                  maxHeight: 310,
-                  maxWidth: "92%",
-                  objectFit: "contain",
-                  filter: "drop-shadow(0 8px 32px rgba(99,102,241,0.12))",
-                  opacity: showPoseA ? 0 : 1,
-                  transition: "opacity 0.8s ease-in-out",
-                }}
-                draggable={false}
-              />
-            )}
-
-            {/* Loading spinner */}
-            {!imgALoaded && (
+            {/* Loading spinner overlay */}
+            {!vidLoaded && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 border-2 border-teal-500/30 border-t-teal-500 rounded-full animate-spin" />
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 border-2 border-teal-500/30 border-t-teal-500 rounded-full animate-spin" />
+                  <span className="text-[10px] text-teal-500/70 font-medium tracking-widest uppercase animate-pulse">Loading Video</span>
+                </div>
               </div>
             )}
           </>
         ) : (
           <div className="flex flex-col items-center justify-center gap-3 text-center px-8 py-12">
             <Activity size={40} className="text-teal-500/40" />
-            <p className="text-slate-500 text-sm font-medium">Exercise Demonstration</p>
-            <p className="text-slate-600 text-xs">{meta.pose} {"\u2022"} {meta.label}</p>
+            <p className="text-slate-500 text-sm font-medium">Video Unavailable</p>
+            <p className="text-slate-600 text-xs">Please check video assets</p>
           </div>
         )}
 
@@ -279,7 +232,7 @@ const HumanExerciseVisualizer = ({ exerciseId }: { exerciseId: number }) => {
 
       {/* Rep counter (top-left) */}
       <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/[0.06] shadow-lg">
-        <svg width="20" height="20" viewBox="0 0 20 20" className="animate-spin" style={{ animationDuration: "3s" }}>
+        <svg width="20" height="20" viewBox="0 0 20 20" className="animate-spin" style={{ animationDuration: "5s" }}>
           <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(20,184,166,0.15)" strokeWidth="2" />
           <circle cx="10" cy="10" r="8" fill="none" stroke="#14b8a6" strokeWidth="2" strokeDasharray="50.2" strokeDashoffset={50.2 - (50.2 * Math.min(repCount, 5) / 5)} strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.5s ease" }} />
         </svg>
@@ -292,7 +245,7 @@ const HumanExerciseVisualizer = ({ exerciseId }: { exerciseId: number }) => {
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
         </span>
-        <span className="text-[9px] font-bold text-teal-400/90 tracking-widest uppercase">{meta.hasAlt ? "Animating" : "Active"}</span>
+        <span className="text-[9px] font-bold text-teal-400/90 tracking-widest uppercase">HD Video</span>
       </div>
 
       {/* Bottom metadata */}
@@ -304,51 +257,9 @@ const HumanExerciseVisualizer = ({ exerciseId }: { exerciseId: number }) => {
           {"\ud83c\udfaf"} {meta.muscles}
         </span>
       </div>
-
-      {/* CSS animations for single-image motion effects */}
-      <style>{`
-        @keyframes exMotionLegRaise {
-          0%, 100% { transform: scale(1) translateY(0); }
-          50% { transform: scale(1.04) translateY(-6px); }
-        }
-        @keyframes exMotionPelvicTilt {
-          0%, 100% { transform: scale(1) translateY(0); }
-          50% { transform: scale(1.02) translateY(-3px); }
-        }
-        @keyframes exMotionHipRoll {
-          0%, 100% { transform: scale(1) rotate(0deg); }
-          25% { transform: scale(1.02) rotate(1.5deg); }
-          75% { transform: scale(1.02) rotate(-1.5deg); }
-        }
-        @keyframes exMotionBridge {
-          0%, 100% { transform: scale(1) translateY(0); }
-          50% { transform: scale(1.05) translateY(-8px); }
-        }
-        @keyframes exMotionProneLeg {
-          0%, 100% { transform: scale(1) translateY(0); }
-          50% { transform: scale(1.03) translateY(-5px) rotate(-1deg); }
-        }
-        @keyframes exMotionHipExt {
-          0%, 100% { transform: scale(1) translateY(0); }
-          50% { transform: scale(1.03) translateY(-4px); }
-        }
-        @keyframes exMotionBirdDog {
-          0%, 100% { transform: scale(1) translateX(0); }
-          50% { transform: scale(1.04) translateX(4px) translateY(-3px); }
-        }
-        @keyframes exMotionChildRock {
-          0%, 100% { transform: scale(1) translateX(0); }
-          50% { transform: scale(1.03) translateX(6px) translateY(3px); }
-        }
-        @keyframes exMotionPressUp {
-          0%, 100% { transform: scale(1) translateY(0) rotate(0deg); }
-          50% { transform: scale(1.05) translateY(-8px) rotate(-1.5deg); }
-        }
-      `}</style>
     </div>
   );
 };
-
 
 export default function App() {
   // App Core State
