@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   size?: number;
@@ -90,19 +90,19 @@ const Heart = ({ className = "", size = 20, ...props }: IconProps) => (
 
 // --- HARDCODED CLINICAL EXERCISE SEQUENCE ---
 const allExercises = [
-  { id: 1, title: "Wall Slides", title_hi: "à¤µà¥‰à¤² à¤¸à¥à¤²à¤¾à¤‡à¤¡à¥à¤¸", instruction_en: "Stand with your back against a wall and feet shoulder-width apart. Slide down into a crouch with knees bent to about 90 degrees. Count to five and slide back up the wall. Repeat 5 times.", instruction_hi: "à¤¦à¥€à¤µà¤¾à¤° à¤•à¥‡ à¤¸à¤¹à¤¾à¤°à¥‡ à¤…à¤ªà¤¨à¥€ à¤ªà¥€à¤  à¤Ÿà¤¿à¤•à¤¾à¤•à¤° à¤–à¤¡à¤¼à¥‡ à¤¹à¥‹ à¤œà¤¾à¤à¤‚ à¤”à¤° à¤ªà¥ˆà¤°à¥‹à¤‚ à¤•à¥‡ à¤¬à¥€à¤š à¤•à¤‚à¤§à¥‹à¤‚ à¤œà¤¿à¤¤à¤¨à¥€ à¤¦à¥‚à¤°à¥€ à¤°à¤–à¥‡à¤‚à¥¤ à¤˜à¥à¤Ÿà¤¨à¥‹à¤‚ à¤•à¥‹ à¤²à¤—à¤­à¤— 90 à¤¡à¤¿à¤—à¥à¤°à¥€ à¤¤à¤• à¤®à¥‹à¤¡à¤¼à¤•à¤° à¤¨à¥€à¤šà¥‡ à¤•à¥€ à¤“à¤° à¤¸à¥à¤²à¤¾à¤‡à¤¡ à¤•à¤°à¥‡à¤‚à¥¤ à¤ªà¤¾à¤‚à¤š à¤¤à¤• à¤—à¤¿à¤¨à¥‡à¤‚ à¤”à¤° à¤µà¤¾à¤ªà¤¸ à¤Šà¤ªà¤° à¤† à¤œà¤¾à¤à¤‚à¥¤ à¤‡à¤¸à¥‡ 5 à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 2, title: "Back Leg Swing", title_hi: "à¤¬à¥ˆà¤• à¤²à¥‡à¤— à¤¸à¥à¤µà¤¿à¤‚à¤—", instruction_en: "Stand behind a chair with your hands on the top of the chair. Lift one leg back and up while keeping the knee straight. Return slowly. Raise other leg and return. Repeat five times with each leg.", instruction_hi: "à¤•à¥à¤°à¥à¤¸à¥€ à¤•à¥‡ à¤ªà¥€à¤›à¥‡ à¤–à¤¡à¤¼à¥‡ à¤¹à¥‹ à¤œà¤¾à¤à¤‚ à¤”à¤° à¤…à¤ªà¤¨à¥‡ à¤¹à¤¾à¤¥ à¤•à¥à¤°à¥à¤¸à¥€ à¤•à¥‡ à¤Šà¤ªà¤° à¤°à¤–à¥‡à¤‚à¥¤ à¤˜à¥à¤Ÿà¤¨à¥‡ à¤•à¥‹ à¤¸à¥€à¤§à¤¾ à¤°à¤–à¤¤à¥‡ à¤¹à¥à¤ à¤à¤• à¤ªà¥ˆà¤° à¤•à¥‹ à¤ªà¥€à¤›à¥‡ à¤”à¤° à¤Šà¤ªà¤° à¤‰à¤ à¤¾à¤à¤‚à¥¤ à¤§à¥€à¤°à¥‡-à¤§à¥€à¤°à¥‡ à¤µà¤¾à¤ªà¤¸ à¤†à¤à¤‚à¥¤ à¤¦à¥‚à¤¸à¤°à¥‡ à¤ªà¥ˆà¤° à¤•à¥‹ à¤‰à¤ à¤¾à¤à¤‚ à¤”à¤° à¤µà¤¾à¤ªà¤¸ à¤†à¤à¤‚à¥¤ à¤ªà¥à¤°à¤¤à¥à¤¯à¥‡à¤• à¤ªà¥ˆà¤° à¤•à¥‡ à¤¸à¤¾à¤¥ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 3, title: "Knee to Chest", title_hi: "à¤¨à¥€ à¤Ÿà¥‚ à¤šà¥‡à¤¸à¥à¤Ÿ", instruction_en: "Lie on your back on a firm surface. Clasp your hands behind the thigh and pull it towards your chest. Keep the opposite leg flat on the surface of the floor. Maintain the position for 3 seconds. Switch legs and repeat five times.", instruction_hi: "à¤à¤• à¤®à¤œà¤¬à¥‚à¤¤ à¤¸à¤¤à¤¹ à¤ªà¤° à¤…à¤ªà¤¨à¥€ à¤ªà¥€à¤  à¤•à¥‡ à¤¬à¤² à¤²à¥‡à¤Ÿ à¤œà¤¾à¤à¤‚à¥¤ à¤…à¤ªà¤¨à¥€ à¤œà¤¾à¤‚à¤˜ à¤•à¥‡ à¤ªà¥€à¤›à¥‡ à¤¹à¤¾à¤¥à¥‹à¤‚ à¤•à¥‹ à¤«à¤‚à¤¸à¤¾à¤à¤‚ à¤”à¤° à¤‡à¤¸à¥‡ à¤…à¤ªà¤¨à¥€ à¤›à¤¾à¤¤à¥€ à¤•à¥€ à¤“à¤° à¤–à¥€à¤‚à¤šà¥‡à¤‚à¥¤ à¤¦à¥‚à¤¸à¤°à¥‡ à¤ªà¥ˆà¤° à¤•à¥‹ à¤«à¤°à¥à¤¶ à¤ªà¤° à¤¸à¥€à¤§à¤¾ à¤°à¤–à¥‡à¤‚à¥¤ 3 à¤¸à¥‡à¤•à¤‚à¤¡ à¤¤à¤• à¤‡à¤¸à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚ à¤°à¤¹à¥‡à¤‚à¥¤ à¤ªà¥ˆà¤° à¤¬à¤¦à¤²à¥‡à¤‚ à¤”à¤° à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 4, title: "Lower Abdominal Exercises", title_hi: "à¤²à¥‹à¤…à¤° à¤à¤¬à¥à¤¡à¥‰à¤®à¤¿à¤¨à¤²", instruction_en: "Lie on your back with your knees bent and feet flat on your bed. Place both hands under your knees and gently pull your knees as close to your chest as possible. Do not raise your head. Repeat five times.", instruction_hi: "à¤…à¤ªà¤¨à¥‡ à¤˜à¥à¤Ÿà¤¨à¥‹à¤‚ à¤•à¥‹ à¤®à¥‹à¤¡à¤¼à¤•à¤° à¤”à¤° à¤ªà¥ˆà¤°à¥‹à¤‚ à¤•à¥‹ à¤¬à¤¿à¤¸à¥à¤¤à¤° à¤ªà¤° à¤¸à¥€à¤§à¤¾ à¤°à¤–à¤•à¤° à¤ªà¥€à¤  à¤•à¥‡ à¤¬à¤² à¤²à¥‡à¤Ÿ à¤œà¤¾à¤à¤‚à¥¤ à¤¦à¥‹à¤¨à¥‹à¤‚ à¤¹à¤¾à¤¥à¥‹à¤‚ à¤•à¥‹ à¤˜à¥à¤Ÿà¤¨à¥‹à¤‚ à¤•à¥‡ à¤¨à¥€à¤šà¥‡ à¤°à¤–à¥‡à¤‚ à¤”à¤° à¤§à¥€à¤°à¥‡ à¤¸à¥‡ à¤˜à¥à¤Ÿà¤¨à¥‹à¤‚ à¤•à¥‹ à¤›à¤¾à¤¤à¥€ à¤•à¥‡ à¤œà¤¿à¤¤à¤¨à¤¾ à¤•à¤°à¥€à¤¬ à¤¹à¥‹ à¤¸à¤•à¥‡ à¤²à¤¾à¤à¤‚à¥¤ à¤…à¤ªà¤¨à¤¾ à¤¸à¤¿à¤° à¤¨ à¤‰à¤ à¤¾à¤à¤‚à¥¤ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 5, title: "Knees to Chest Exercise", title_hi: "à¤¨à¥€à¤œà¤¼ à¤Ÿà¥‚ à¤šà¥‡à¤¸à¥à¤Ÿ (à¤…à¤²à¥à¤Ÿà¤°à¤¨à¥‡à¤Ÿ)", instruction_en: "Keep your knees bent and lie flat on the floor. Flatten your back to the floor by pulling your abdominal muscles up and in. Raise your leg keeping your knee straight. Hold for three seconds. Repeat five times with each leg.", instruction_hi: "à¤…à¤ªà¤¨à¥‡ à¤˜à¥à¤Ÿà¤¨à¥‹à¤‚ à¤•à¥‹ à¤®à¥‹à¤¡à¤¼à¤•à¤° à¤°à¤–à¥‡à¤‚ à¤”à¤° à¤«à¤°à¥à¤¶ à¤ªà¤° à¤¸à¥€à¤§à¥‡ à¤²à¥‡à¤Ÿ à¤œà¤¾à¤à¤‚à¥¤ à¤ªà¥‡à¤Ÿ à¤•à¥€ à¤®à¤¾à¤‚à¤¸à¤ªà¥‡à¤¶à¤¿à¤¯à¥‹à¤‚ à¤•à¥‹ à¤Šà¤ªà¤° à¤”à¤° à¤…à¤‚à¤¦à¤° à¤•à¥€ à¤“à¤° à¤–à¥€à¤‚à¤šà¤•à¤° à¤…à¤ªà¤¨à¥€ à¤ªà¥€à¤  à¤•à¥‹ à¤«à¤°à¥à¤¶ à¤ªà¤° à¤¸à¥€à¤§à¤¾ à¤•à¤°à¥‡à¤‚à¥¤ à¤˜à¥à¤Ÿà¤¨à¤¾ à¤¸à¥€à¤§à¤¾ à¤°à¤–à¤¤à¥‡ à¤¹à¥à¤ à¤ªà¥ˆà¤° à¤‰à¤ à¤¾à¤à¤‚à¥¤ à¤¤à¥€à¤¨ à¤¸à¥‡à¤•à¤‚à¤¡ à¤°à¥à¤•à¥‡à¤‚à¥¤ à¤ªà¥à¤°à¤¤à¥à¤¯à¥‡à¤• à¤ªà¥ˆà¤° à¤¸à¥‡ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 6, title: "Pelvic Tilt", title_hi: "à¤ªà¥‡à¤²à¥à¤µà¤¿à¤• à¤Ÿà¤¿à¤²à¥à¤Ÿ", instruction_en: "Push the lower part of your back into the floor by pulling the lower abdominal muscles up and in. Hold your back flat while breathing easily in and out. Hold for three seconds. Repeat five times.", instruction_hi: "à¤¨à¤¿à¤šà¤²à¥‡ à¤ªà¥‡à¤Ÿ à¤•à¥€ à¤®à¤¾à¤‚à¤¸à¤ªà¥‡à¤¶à¤¿à¤¯à¥‹à¤‚ à¤•à¥‹ à¤Šà¤ªà¤° à¤”à¤° à¤…à¤‚à¤¦à¤° à¤–à¥€à¤‚à¤šà¤•à¤° à¤…à¤ªà¤¨à¥€ à¤ªà¥€à¤  à¤•à¥‹ à¤«à¤°à¥à¤¶ à¤®à¥‡à¤‚ à¤§à¤•à¥‡à¤²à¥‡à¤‚à¥¤ à¤†à¤°à¤¾à¤® à¤¸à¥‡ à¤¸à¤¾à¤‚à¤¸ à¤²à¥‡à¤¤à¥‡ à¤”à¤° à¤›à¥‹à¤¡à¤¼à¤¤à¥‡ à¤¹à¥à¤ à¤…à¤ªà¤¨à¥€ à¤ªà¥€à¤  à¤•à¥‹ à¤¸à¥€à¤§à¤¾ à¤°à¤–à¥‡à¤‚à¥¤ à¤¤à¥€à¤¨ à¤¸à¥‡à¤•à¤‚à¤¡ à¤¤à¤• à¤°à¥à¤•à¥‡à¤‚à¥¤ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 7, title: "Hip Rolling", title_hi: "à¤¹à¤¿à¤ª à¤°à¥‹à¤²à¤¿à¤‚à¤—", instruction_en: "Keep both knees bent, feet flat on the floor. Cross your arms over your chest. Turn your head to the right as you turn both knees to the left. Allow knees to relax. Bring knees back up, reverse directions. Repeat five times.", instruction_hi: "à¤¦à¥‹à¤¨à¥‹à¤‚ à¤˜à¥à¤Ÿà¤¨à¥‹à¤‚ à¤•à¥‹ à¤®à¥‹à¤¡à¤¼à¤•à¤° à¤°à¤–à¥‡à¤‚, à¤ªà¥ˆà¤° à¤«à¤°à¥à¤¶ à¤ªà¤° à¤¸à¥€à¤§à¥‡ à¤¹à¥‹à¤‚à¥¤ à¤…à¤ªà¤¨à¥€ à¤¬à¤¾à¤¹à¥‹à¤‚ à¤•à¥‹ à¤…à¤ªà¤¨à¥€ à¤›à¤¾à¤¤à¥€ à¤ªà¤° à¤•à¥à¤°à¥‰à¤¸ à¤•à¤°à¥‡à¤‚à¥¤ à¤œà¥ˆà¤¸à¥‡ à¤¹à¥€ à¤†à¤ª à¤¦à¥‹à¤¨à¥‹à¤‚ à¤˜à¥à¤Ÿà¤¨à¥‹à¤‚ à¤•à¥‹ à¤¬à¤¾à¤ˆà¤‚ à¤“à¤° à¤˜à¥à¤®à¤¾à¤¤à¥‡ à¤¹à¥ˆà¤‚, à¤…à¤ªà¤¨à¥‡ à¤¸à¤¿à¤° à¤•à¥‹ à¤¦à¤¾à¤ˆà¤‚ à¤“à¤° à¤˜à¥à¤®à¤¾à¤à¤‚à¥¤ à¤˜à¥à¤Ÿà¤¨à¥‹à¤‚ à¤•à¥‹ à¤†à¤°à¤¾à¤® à¤¦à¥‡à¤‚à¥¤ à¤¦à¤¿à¤¶à¤¾ à¤¬à¤¦à¤²à¥‡à¤‚à¥¤ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 8, title: "Pelvic Lift", title_hi: "à¤ªà¥‡à¤²à¥à¤µà¤¿à¤• à¤²à¤¿à¤«à¥à¤Ÿ", instruction_en: "Keep your legs together. Cross your arms over your chest. Tilt your pelvis and push your low back to the floor. Slowly lift your pelvis off the floor. Maintain for three seconds. Lower pelvis. Repeat five times.", instruction_hi: "à¤…à¤ªà¤¨à¥‡ à¤ªà¥ˆà¤°à¥‹à¤‚ à¤•à¥‹ à¤à¤• à¤¸à¤¾à¤¥ à¤°à¤–à¥‡à¤‚à¥¤ à¤¬à¤¾à¤¹à¥‹à¤‚ à¤•à¥‹ à¤›à¤¾à¤¤à¥€ à¤ªà¤° à¤•à¥à¤°à¥‰à¤¸ à¤•à¤°à¥‡à¤‚à¥¤ à¤¶à¥à¤°à¥‹à¤£à¤¿ à¤•à¥‹ à¤à¥à¤•à¤¾à¤à¤‚ à¤”à¤° à¤ªà¥€à¤  à¤•à¥‡ à¤¨à¤¿à¤šà¤²à¥‡ à¤¹à¤¿à¤¸à¥à¤¸à¥‡ à¤•à¥‹ à¤«à¤°à¥à¤¶ à¤ªà¤° à¤§à¤•à¥‡à¤²à¥‡à¤‚à¥¤ à¤§à¥€à¤°à¥‡-à¤§à¥€à¤°à¥‡ à¤¶à¥à¤°à¥‹à¤£à¤¿ à¤•à¥‹ à¤«à¤°à¥à¤¶ à¤¸à¥‡ à¤‰à¤ à¤¾à¤à¤‚à¥¤ à¤¤à¥€à¤¨ à¤¸à¥‡à¤•à¤‚à¤¡ à¤¤à¤• à¤¬à¤¨à¤¾à¤ à¤°à¤–à¥‡à¤‚à¥¤ à¤¶à¥à¤°à¥‹à¤£à¤¿ à¤¨à¥€à¤šà¥‡ à¤•à¤°à¥‡à¤‚à¥¤ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 9, title: "Leg Raises", title_hi: "à¤²à¥‡à¤— à¤°à¥‡à¤œà¥‡à¤œà¤¼", instruction_en: "Lie on your stomach. Tighten the muscles in one leg and raise it from the floor. Hold your leg up for a count of 5 and return it to the floor. Do the same with the other leg. Repeat five times with each leg.", instruction_hi: "à¤ªà¥‡à¤Ÿ à¤•à¥‡ à¤¬à¤² à¤²à¥‡à¤Ÿ à¤œà¤¾à¤à¤‚à¥¤ à¤à¤• à¤ªà¥ˆà¤° à¤•à¥€ à¤®à¤¾à¤‚à¤¸à¤ªà¥‡à¤¶à¤¿à¤¯à¥‹à¤‚ à¤•à¥‹ à¤•à¤¸ à¤²à¥‡à¤‚ à¤”à¤° à¤‡à¤¸à¥‡ à¤«à¤°à¥à¤¶ à¤¸à¥‡ à¤‰à¤ à¤¾à¤à¤‚à¥¤ à¤…à¤ªà¤¨à¥‡ à¤ªà¥ˆà¤° à¤•à¥‹ 5 à¤•à¥€ à¤—à¤¿à¤¨à¤¤à¥€ à¤¤à¤• à¤Šà¤ªà¤° à¤°à¤–à¥‡à¤‚ à¤”à¤° à¤«à¤°à¥à¤¶ à¤ªà¤° à¤µà¤¾à¤ªà¤¸ à¤²à¤¾à¤à¤‚à¥¤ à¤¦à¥‚à¤¸à¤°à¥‡ à¤ªà¥ˆà¤° à¤¸à¥‡ à¤­à¥€ à¤à¤¸à¤¾ à¤¹à¥€ à¤•à¤°à¥‡à¤‚à¥¤ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 10, title: "Hip Extension", title_hi: "à¤¹à¤¿à¤ª à¤à¤•à¥à¤¸à¤Ÿà¥‡à¤‚à¤¶à¤¨", instruction_en: "Bend your knee to a 90 degree angle so the sole of your foot faces the ceiling. Lift one thigh off the floor approximately 6 inches. Slowly lower your thigh back to the starting position. Repeat five times with each leg.", instruction_hi: "à¤…à¤ªà¤¨à¥‡ à¤˜à¥à¤Ÿà¤¨à¥‡ à¤•à¥‹ 90 à¤¡à¤¿à¤—à¥à¤°à¥€ à¤•à¥‡ à¤•à¥‹à¤£ à¤ªà¤° à¤®à¥‹à¤¡à¤¼à¥‡à¤‚ à¤¤à¤¾à¤•à¤¿ à¤†à¤ªà¤•à¥‡ à¤ªà¥ˆà¤° à¤•à¤¾ à¤¤à¤²à¤µà¤¾ à¤›à¤¤ à¤•à¥€ à¤“à¤° à¤¹à¥‹à¥¤ à¤à¤• à¤œà¤¾à¤‚à¤˜ à¤•à¥‹ à¤«à¤°à¥à¤¶ à¤¸à¥‡ à¤²à¤—à¤­à¤— 6 à¤‡à¤‚à¤š à¤Šà¤ªà¤° à¤‰à¤ à¤¾à¤à¤‚à¥¤ à¤§à¥€à¤°à¥‡-à¤§à¥€à¤°à¥‡ à¤œà¤¾à¤‚à¤˜ à¤•à¥‹ à¤ªà¥à¤°à¤¾à¤°à¤‚à¤­à¤¿à¤• à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚ à¤µà¤¾à¤ªà¤¸ à¤²à¤¾à¤à¤‚à¥¤ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 11, title: "Hip Extension (All-Fours)", title_hi: "à¤¹à¤¿à¤ª à¤à¤•à¥à¤¸à¤Ÿà¥‡à¤‚à¤¶à¤¨ (à¤šà¤¾à¤°à¥‹à¤‚ à¤¹à¤¾à¤¥-à¤ªà¥ˆà¤°)", instruction_en: "Assume the 'all-fours' position. Extend the head up and the leg out to a flat position parallel to the floor. Return to the starting position. Repeat five times, alternating legs.", instruction_hi: "à¤šà¤¾à¤°à¥‹à¤‚ à¤¹à¤¾à¤¥-à¤ªà¥ˆà¤° à¤•à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ (à¤‘à¤²-à¤«à¥‹à¤°à¥à¤¸) à¤®à¥‡à¤‚ à¤†à¤à¤‚à¥¤ à¤¸à¤¿à¤° à¤•à¥‹ à¤Šà¤ªà¤° à¤‰à¤ à¤¾à¤à¤‚ à¤”à¤° à¤ªà¥ˆà¤° à¤•à¥‹ à¤«à¤°à¥à¤¶ à¤•à¥‡ à¤¸à¤®à¤¾à¤¨à¤¾à¤‚à¤¤à¤° à¤¸à¥€à¤§à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚ à¤¬à¤¾à¤¹à¤° à¤«à¥ˆà¤²à¤¾à¤à¤‚à¥¤ à¤¶à¥à¤°à¥à¤†à¤¤à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚ à¤²à¥Œà¤Ÿ à¤†à¤à¤‚à¥¤ à¤ªà¥ˆà¤°à¥‹à¤‚ à¤•à¥‹ à¤¬à¤¦à¤²à¤¤à¥‡ à¤¹à¥à¤ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 12, title: "Hand-Knee Rocking", title_hi: "à¤¹à¥ˆà¤‚à¤¡-à¤¨à¥€ à¤°à¥‰à¤•à¤¿à¤‚à¤—", instruction_en: "Kneel on a mat with your knees and ankles. Allow your buttocks to rest on your heels. Relax in this position and then slowly move forward with your elbows straight into a press-up position. Repeat five times.", instruction_hi: "à¤šà¤Ÿà¤¾à¤ˆ à¤ªà¤° à¤˜à¥à¤Ÿà¤¨à¥‡ à¤”à¤° à¤Ÿà¤–à¤¨à¥‹à¤‚ à¤•à¥‡ à¤¬à¤² à¤¬à¥ˆà¤ à¥‡à¤‚à¥¤ à¤…à¤ªà¤¨à¥‡ à¤•à¥‚à¤²à¥à¤¹à¥‹à¤‚ à¤•à¥‹ à¤…à¤ªà¤¨à¥€ à¤à¤¡à¤¼à¤¿à¤¯à¥‹à¤‚ à¤ªà¤° à¤Ÿà¤¿à¤•à¤¨à¥‡ à¤¦à¥‡à¤‚à¥¤ à¤‡à¤¸ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚ à¤†à¤°à¤¾à¤® à¤•à¤°à¥‡à¤‚ à¤”à¤° à¤«à¤¿à¤° à¤…à¤ªà¤¨à¥€ à¤•à¥‹à¤¹à¤¨à¤¿à¤¯à¥‹à¤‚ à¤•à¥‹ à¤¸à¥€à¤§à¤¾ à¤°à¤–à¤¤à¥‡ à¤¹à¥à¤ à¤§à¥€à¤°à¥‡-à¤§à¥€à¤°à¥‡ à¤†à¤—à¥‡ à¤•à¥€ à¤“à¤° à¤ªà¥à¤°à¥‡à¤¸-à¤…à¤ª à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚ à¤¬à¤¢à¤¼à¥‡à¤‚à¥¤ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" },
-  { id: 13, title: "Press Up", title_hi: "à¤ªà¥à¤°à¥‡à¤¸ à¤…à¤ª", instruction_en: "Straighten your arms, raising your upper trunk off the floor. Keep your pelvis against the mat, allowing your lower back to arch. Hold for three seconds. Return to starting position. Repeat five times.", instruction_hi: "à¤…à¤ªà¤¨à¥€ à¤¬à¤¾à¤¹à¥‹à¤‚ à¤•à¥‹ à¤¸à¥€à¤§à¤¾ à¤•à¤°à¥‡à¤‚, à¤…à¤ªà¤¨à¥‡ à¤¶à¤°à¥€à¤° à¤•à¥‡ à¤Šà¤ªà¤°à¥€ à¤¹à¤¿à¤¸à¥à¤¸à¥‡ à¤•à¥‹ à¤«à¤°à¥à¤¶ à¤¸à¥‡ à¤Šà¤ªà¤° à¤‰à¤ à¤¾à¤à¤‚à¥¤ à¤…à¤ªà¤¨à¥‡ à¤¶à¥à¤°à¥‹à¤£à¤¿ (à¤ªà¥‡à¤²à¥à¤µà¤¿à¤¸) à¤•à¥‹ à¤šà¤Ÿà¤¾à¤ˆ à¤•à¥‡ à¤–à¤¿à¤²à¤¾à¤« à¤°à¤–à¥‡à¤‚, à¤œà¤¿à¤¸à¤¸à¥‡ à¤†à¤ªà¤•à¥€ à¤ªà¥€à¤  à¤•à¥‡ à¤¨à¤¿à¤šà¤²à¥‡ à¤¹à¤¿à¤¸à¥à¤¸à¥‡ à¤®à¥‡à¤‚ à¤®à¥‡à¤¹à¤°à¤¾à¤¬ (à¤†à¤°à¥à¤š) à¤¬à¤¨ à¤¸à¤•à¥‡à¥¤ à¤¤à¥€à¤¨ à¤¸à¥‡à¤•à¤‚à¤¡ à¤°à¥à¤•à¥‡à¤‚à¥¤ à¤µà¤¾à¤ªà¤¸ à¤²à¥Œà¤Ÿà¥‡à¤‚à¥¤ à¤ªà¤¾à¤‚à¤š à¤¬à¤¾à¤° à¤¦à¥‹à¤¹à¤°à¤¾à¤à¤‚à¥¤" }
+  { id: 1, title: "Wall Slides", title_hi: "वॉल स्लाइड्स", instruction_en: "Stand with your back against a wall and feet shoulder-width apart. Slide down into a crouch with knees bent to about 90 degrees. Count to five and slide back up the wall. Repeat 5 times.", instruction_hi: "दीवार के सहारे अपनी पीठ टिकाकर खड़े हो जाएं और पैरों के बीच कंधों जितनी दूरी रखें। घुटनों को लगभग 90 डिग्री तक मोड़कर नीचे की ओर स्लाइड करें। पांच तक गिनें और वापस ऊपर आ जाएं। इसे 5 बार दोहराएं।" },
+  { id: 2, title: "Back Leg Swing", title_hi: "बैक लेग स्विंग", instruction_en: "Stand behind a chair with your hands on the top of the chair. Lift one leg back and up while keeping the knee straight. Return slowly. Raise other leg and return. Repeat five times with each leg.", instruction_hi: "कुर्सी के पीछे खड़े हो जाएं और अपने हाथ कुर्सी के ऊपर रखें। घुटने को सीधा रखते हुए एक पैर को पीछे और ऊपर उठाएं। धीरे-धीरे वापस आएं। दूसरे पैर को उठाएं और वापस आएं। प्रत्येक पैर के साथ पांच बार दोहराएं।" },
+  { id: 3, title: "Knee to Chest", title_hi: "नी टू चेस्ट", instruction_en: "Lie on your back on a firm surface. Clasp your hands behind the thigh and pull it towards your chest. Keep the opposite leg flat on the surface of the floor. Maintain the position for 3 seconds. Switch legs and repeat five times.", instruction_hi: "एक मजबूत सतह पर अपनी पीठ के बल लेट जाएं। अपनी जांघ के पीछे हाथों को फंसाएं और इसे अपनी छाती की ओर खींचें। दूसरे पैर को फर्श पर सीधा रखें। 3 सेकंड तक इसी स्थिति में रहें। पैर बदलें और पांच बार दोहराएं।" },
+  { id: 4, title: "Lower Abdominal Exercises", title_hi: "लोअर एब्डॉमिनल", instruction_en: "Lie on your back with your knees bent and feet flat on your bed. Place both hands under your knees and gently pull your knees as close to your chest as possible. Do not raise your head. Repeat five times.", instruction_hi: "अपने घुटनों को मोड़कर और पैरों को बिस्तर पर सीधा रखकर पीठ के बल लेट जाएं। दोनों हाथों को घुटनों के नीचे रखें और धीरे से घुटनों को छाती के जितना करीब हो सके लाएं। अपना सिर न उठाएं। पांच बार दोहराएं।" },
+  { id: 5, title: "Knees to Chest Exercise", title_hi: "नीज़ टू चेस्ट (अल्टरनेट)", instruction_en: "Keep your knees bent and lie flat on the floor. Flatten your back to the floor by pulling your abdominal muscles up and in. Raise your leg keeping your knee straight. Hold for three seconds. Repeat five times with each leg.", instruction_hi: "अपने घुटनों को मोड़कर रखें और फर्श पर सीधे लेट जाएं। पेट की मांसपेशियों को ऊपर और अंदर की ओर खींचकर अपनी पीठ को फर्श पर सीधा करें। घुटना सीधा रखते हुए पैर उठाएं। तीन सेकंड रुकें। प्रत्येक पैर से पांच बार दोहराएं।" },
+  { id: 6, title: "Pelvic Tilt", title_hi: "पेल्विक टिल्ट", instruction_en: "Push the lower part of your back into the floor by pulling the lower abdominal muscles up and in. Hold your back flat while breathing easily in and out. Hold for three seconds. Repeat five times.", instruction_hi: "निचले पेट की मांसपेशियों को ऊपर और अंदर खींचकर अपनी पीठ को फर्श में धकेलें। आराम से सांस लेते और छोड़ते हुए अपनी पीठ को सीधा रखें। तीन सेकंड तक रुकें। पांच बार दोहराएं।" },
+  { id: 7, title: "Hip Rolling", title_hi: "हिप रोलिंग", instruction_en: "Keep both knees bent, feet flat on the floor. Cross your arms over your chest. Turn your head to the right as you turn both knees to the left. Allow knees to relax. Bring knees back up, reverse directions. Repeat five times.", instruction_hi: "दोनों घुटनों को मोड़कर रखें, पैर फर्श पर सीधे हों। अपनी बाहों को अपनी छाती पर क्रॉस करें। जैसे ही आप दोनों घुटनों को बाईं ओर घुमाते हैं, अपने सिर को दाईं ओर घुमाएं। घुटनों को आराम दें। दिशा बदलें। पांच बार दोहराएं।" },
+  { id: 8, title: "Pelvic Lift", title_hi: "पेल्विक लिफ्ट", instruction_en: "Keep your legs together. Cross your arms over your chest. Tilt your pelvis and push your low back to the floor. Slowly lift your pelvis off the floor. Maintain for three seconds. Lower pelvis. Repeat five times.", instruction_hi: "अपने पैरों को एक साथ रखें। बाहों को छाती पर क्रॉस करें। श्रोणि को झुकाएं और पीठ के निचले हिस्से को फर्श पर धकेलें। धीरे-धीरे श्रोणि को फर्श से उठाएं। तीन सेकंड तक बनाए रखें। श्रोणि नीचे करें। पांच बार दोहराएं।" },
+  { id: 9, title: "Leg Raises", title_hi: "लेग रेजेज़", instruction_en: "Lie on your stomach. Tighten the muscles in one leg and raise it from the floor. Hold your leg up for a count of 5 and return it to the floor. Do the same with the other leg. Repeat five times with each leg.", instruction_hi: "पेट के बल लेट जाएं। एक पैर की मांसपेशियों को कस लें और इसे फर्श से उठाएं। अपने पैर को 5 की गिनती तक ऊपर रखें और फर्श पर वापस लाएं। दूसरे पैर से भी ऐसा ही करें। पांच बार दोहराएं।" },
+  { id: 10, title: "Hip Extension", title_hi: "हिप एक्सटेंशन", instruction_en: "Bend your knee to a 90 degree angle so the sole of your foot faces the ceiling. Lift one thigh off the floor approximately 6 inches. Slowly lower your thigh back to the starting position. Repeat five times with each leg.", instruction_hi: "अपने घुटने को 90 डिग्री के कोण पर मोड़ें ताकि आपके पैर का तलवा छत की ओर हो। एक जांघ को फर्श से लगभग 6 इंच ऊपर उठाएं। धीरे-धीरे जांघ को प्रारंभिक स्थिति में वापस लाएं। पांच बार दोहराएं।" },
+  { id: 11, title: "Hip Extension (All-Fours)", title_hi: "हिप एक्सटेंशन (चारों हाथ-पैर)", instruction_en: "Assume the 'all-fours' position. Extend the head up and the leg out to a flat position parallel to the floor. Return to the starting position. Repeat five times, alternating legs.", instruction_hi: "चारों हाथ-पैर की स्थिति (ऑल-फोर्स) में आएं। सिर को ऊपर उठाएं और पैर को फर्श के समानांतर सीधी स्थिति में बाहर फैलाएं। शुरुआती स्थिति में लौट आएं। पैरों को बदलते हुए पांच बार दोहराएं।" },
+  { id: 12, title: "Hand-Knee Rocking", title_hi: "हैंड-नी रॉकिंग", instruction_en: "Kneel on a mat with your knees and ankles. Allow your buttocks to rest on your heels. Relax in this position and then slowly move forward with your elbows straight into a press-up position. Repeat five times.", instruction_hi: "चटाई पर घुटने और टखनों के बल बैठें। अपने कूल्हों को अपनी एड़ियों पर टिकने दें। इस स्थिति में आराम करें और फिर अपनी कोहनियों को सीधा रखते हुए धीरे-धीरे आगे की ओर प्रेस-अप स्थिति में बढ़ें। पांच बार दोहराएं।" },
+  { id: 13, title: "Press Up", title_hi: "प्रेस अप", instruction_en: "Straighten your arms, raising your upper trunk off the floor. Keep your pelvis against the mat, allowing your lower back to arch. Hold for three seconds. Return to starting position. Repeat five times.", instruction_hi: "अपनी बाहों को सीधा करें, अपने शरीर के ऊपरी हिस्से को फर्श से ऊपर उठाएं। अपने श्रोणि (पेल्विस) को चटाई के खिलाफ रखें, जिससे आपकी पीठ के निचले हिस्से में मेहराब (आर्च) बन सके। तीन सेकंड रुकें। वापस लौटें। पांच बार दोहराएं।" }
 ];
 
 // --- SECURE LOCAL ENDPOINT Gemini API HELPER ---
@@ -135,107 +135,219 @@ const fetchGeminiAPI = async (systemInstruction: string, promptText: string, res
   return result;
 };
 
-// --- REALISTIC 3D HUMAN EXERCISE VISUALIZER ---
-const EXERCISE_LABELS: Record<number, { pose: string; label: string }> = {
-  1: { pose: "Standing", label: "Wall Squat" },
-  2: { pose: "Standing", label: "Leg Swing" },
-  3: { pose: "Lying", label: "Knee Pull" },
-  4: { pose: "Lying", label: "Double Knee" },
-  5: { pose: "Lying", label: "Leg Raise" },
-  6: { pose: "Lying", label: "Pelvic Tilt" },
-  7: { pose: "Lying", label: "Hip Roll" },
-  8: { pose: "Lying", label: "Bridge" },
-  9: { pose: "Prone", label: "Leg Lift" },
-  10: { pose: "Prone", label: "Hip Ext." },
-  11: { pose: "All-Fours", label: "Bird Dog" },
-  12: { pose: "All-Fours", label: "Child Rock" },
-  13: { pose: "Prone", label: "Press-Up" },
+// --- REALISTIC 3D HUMAN EXERCISE VISUALIZER (ANIMATED) ---
+const EXERCISE_META: Record<number, { pose: string; label: string; muscles: string; hasAlt: boolean }> = {
+  1: { pose: "Standing", label: "Wall Squat", muscles: "Quads \u2022 Glutes", hasAlt: true },
+  2: { pose: "Standing", label: "Leg Swing", muscles: "Hip Flexors \u2022 Glutes", hasAlt: true },
+  3: { pose: "Lying", label: "Knee Pull", muscles: "Lower Back \u2022 Hip", hasAlt: true },
+  4: { pose: "Lying", label: "Double Knee", muscles: "Lower Back \u2022 Core", hasAlt: true },
+  5: { pose: "Lying", label: "Leg Raise", muscles: "Core \u2022 Hip Flexors", hasAlt: false },
+  6: { pose: "Lying", label: "Pelvic Tilt", muscles: "Core \u2022 Lumbar", hasAlt: false },
+  7: { pose: "Lying", label: "Hip Roll", muscles: "Obliques \u2022 Spine", hasAlt: false },
+  8: { pose: "Lying", label: "Bridge", muscles: "Glutes \u2022 Hamstrings", hasAlt: false },
+  9: { pose: "Prone", label: "Leg Lift", muscles: "Glutes \u2022 Lower Back", hasAlt: false },
+  10: { pose: "Prone", label: "Hip Ext.", muscles: "Glutes \u2022 Hamstrings", hasAlt: false },
+  11: { pose: "All-Fours", label: "Bird Dog", muscles: "Core \u2022 Balance", hasAlt: false },
+  12: { pose: "All-Fours", label: "Child Rock", muscles: "Spine \u2022 Relaxation", hasAlt: false },
+  13: { pose: "Prone", label: "Press-Up", muscles: "Lower Back \u2022 Core", hasAlt: false },
+};
+
+// CSS motion configs for exercises without alternate images
+const EXERCISE_MOTION: Record<number, string> = {
+  5: "exMotionLegRaise",
+  6: "exMotionPelvicTilt",
+  7: "exMotionHipRoll",
+  8: "exMotionBridge",
+  9: "exMotionProneLeg",
+  10: "exMotionHipExt",
+  11: "exMotionBirdDog",
+  12: "exMotionChildRock",
+  13: "exMotionPressUp",
 };
 
 const HumanExerciseVisualizer = ({ exerciseId }: { exerciseId: number }) => {
-  const meta = EXERCISE_LABELS[exerciseId] || { pose: "Active", label: "Exercise" };
-  const [imgLoaded, setImgLoaded] = useState(false);
+  const meta = EXERCISE_META[exerciseId] || { pose: "Active", label: "Exercise", muscles: "Full Body", hasAlt: false };
+  const [imgALoaded, setImgALoaded] = useState(false);
+  const [imgBLoaded, setImgBLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [showPoseA, setShowPoseA] = useState(true);
+  const [repCount, setRepCount] = useState(0);
 
   useEffect(() => {
-    setImgLoaded(false);
+    setImgALoaded(false);
+    setImgBLoaded(false);
     setImgError(false);
+    setShowPoseA(true);
+    setRepCount(0);
   }, [exerciseId]);
 
-  return (
-    <div className="relative w-full flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-white/[0.06] mb-6 group" style={{ minHeight: 320, background: "linear-gradient(135deg, #080c14 0%, #0c1220 40%, #0a0f1a 100%)" }}>
+  // Crossfade timer for exercises with alternate images
+  useEffect(() => {
+    if (!meta.hasAlt) return;
+    const interval = setInterval(() => {
+      setShowPoseA(prev => {
+        if (prev) setRepCount(c => c + 1);
+        return !prev;
+      });
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [exerciseId, meta.hasAlt]);
 
-      {/* Ambient glow halos behind the figure */}
+  // Rep counter for non-alt exercises
+  useEffect(() => {
+    if (meta.hasAlt) return;
+    const interval = setInterval(() => {
+      setRepCount(c => c + 1);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [exerciseId, meta.hasAlt]);
+
+  const motionClass = !meta.hasAlt ? EXERCISE_MOTION[exerciseId] : undefined;
+
+  return (
+    <div className="relative w-full flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-white/[0.06] mb-6 group" style={{ minHeight: 340, background: "linear-gradient(135deg, #080c14 0%, #0c1220 40%, #0a0f1a 100%)" }}>
+      {/* Ambient glow halos */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full opacity-30" style={{ background: "radial-gradient(circle, rgba(20,184,166,0.25) 0%, transparent 70%)", animation: "pulse 4s ease-in-out infinite" }} />
         <div className="absolute top-1/3 left-1/3 w-56 h-56 rounded-full opacity-20" style={{ background: "radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)", animation: "pulse 5s ease-in-out infinite 1s" }} />
         <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: "linear-gradient(to top, rgba(20,184,166,0.06), transparent)" }} />
       </div>
 
-      {/* Subtle animated grid overlay for depth */}
+      {/* Grid overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
 
-      {/* THE REALISTIC 3D EXERCISE IMAGE */}
-      <div className="relative z-10 flex items-center justify-center w-full" style={{ minHeight: 280 }}>
+      {/* ANIMATED EXERCISE IMAGES */}
+      <div className="relative z-10 flex items-center justify-center w-full" style={{ minHeight: 300 }}>
         {!imgError ? (
-          <img
-            src={`/exercises/exercise_${exerciseId}.png`}
-            alt={`${meta.label} demonstration`}
-            onLoad={() => setImgLoaded(true)}
-            onError={() => setImgError(true)}
-            className="transition-all duration-700 ease-out select-none"
-            style={{
-              maxHeight: 300,
-              maxWidth: "92%",
-              objectFit: "contain",
-              filter: imgLoaded ? "drop-shadow(0 8px 32px rgba(20,184,166,0.15))" : "blur(8px)",
-              opacity: imgLoaded ? 1 : 0.3,
-              animation: imgLoaded ? "exerciseBreathe 4s ease-in-out infinite" : "none",
-            }}
-            draggable={false}
-          />
+          <>
+            {/* Primary exercise pose */}
+            <img
+              src={`/exercises/exercise_${exerciseId}.png`}
+              alt={`${meta.label} - active position`}
+              onLoad={() => setImgALoaded(true)}
+              onError={() => setImgError(true)}
+              className="absolute select-none"
+              style={{
+                maxHeight: 310,
+                maxWidth: "92%",
+                objectFit: "contain",
+                filter: "drop-shadow(0 8px 32px rgba(20,184,166,0.18))",
+                opacity: meta.hasAlt ? (showPoseA ? 1 : 0) : 1,
+                transition: meta.hasAlt ? "opacity 0.8s ease-in-out" : "none",
+                animation: !meta.hasAlt && imgALoaded ? `${motionClass} 3s ease-in-out infinite` : undefined,
+              }}
+              draggable={false}
+            />
+
+            {/* Alternate start-position image (exercises 1-4) */}
+            {meta.hasAlt && (
+              <img
+                src={`/exercises/exercise_${exerciseId}b.png`}
+                alt={`${meta.label} - start position`}
+                onLoad={() => setImgBLoaded(true)}
+                className="absolute select-none"
+                style={{
+                  maxHeight: 310,
+                  maxWidth: "92%",
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 8px 32px rgba(99,102,241,0.12))",
+                  opacity: showPoseA ? 0 : 1,
+                  transition: "opacity 0.8s ease-in-out",
+                }}
+                draggable={false}
+              />
+            )}
+
+            {/* Loading spinner */}
+            {!imgALoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 border-2 border-teal-500/30 border-t-teal-500 rounded-full animate-spin" />
+              </div>
+            )}
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center gap-3 text-center px-8 py-12">
             <Activity size={40} className="text-teal-500/40" />
             <p className="text-slate-500 text-sm font-medium">Exercise Demonstration</p>
-            <p className="text-slate-600 text-xs">{meta.pose} â€¢ {meta.label}</p>
+            <p className="text-slate-600 text-xs">{meta.pose} {"\u2022"} {meta.label}</p>
           </div>
         )}
 
-        {/* Cinematic vignette overlay */}
-        <div className="absolute inset-0 pointer-events-none rounded-3xl" style={{ boxShadow: "inset 0 0 80px 30px rgba(8,12,20,0.7)" }} />
+        {/* Cinematic vignette */}
+        <div className="absolute inset-0 pointer-events-none rounded-3xl" style={{ boxShadow: "inset 0 0 80px 30px rgba(8,12,20,0.6)" }} />
       </div>
 
-      {/* Floating live-pulse badge (top-right) */}
+      {/* Rep counter (top-left) */}
+      <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/[0.06] shadow-lg">
+        <svg width="20" height="20" viewBox="0 0 20 20" className="animate-spin" style={{ animationDuration: "3s" }}>
+          <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(20,184,166,0.15)" strokeWidth="2" />
+          <circle cx="10" cy="10" r="8" fill="none" stroke="#14b8a6" strokeWidth="2" strokeDasharray="50.2" strokeDashoffset={50.2 - (50.2 * Math.min(repCount, 5) / 5)} strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.5s ease" }} />
+        </svg>
+        <span className="text-xs font-bold text-white tabular-nums">{Math.min(repCount, 5)}<span className="text-slate-500">/5</span></span>
+      </div>
+
+      {/* Live pulse badge (top-right) */}
       <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-teal-500/15 shadow-lg">
         <span className="relative flex h-2 w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
         </span>
-        <span className="text-[9px] font-bold text-teal-400/90 tracking-widest uppercase">3D Demo</span>
+        <span className="text-[9px] font-bold text-teal-400/90 tracking-widest uppercase">{meta.hasAlt ? "Animating" : "Active"}</span>
       </div>
 
-      {/* Bottom metadata bar */}
+      {/* Bottom metadata */}
       <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between z-20 pointer-events-none">
         <span className="text-[9px] font-bold text-teal-400/90 tracking-widest uppercase bg-slate-950/80 px-2.5 py-1 rounded-lg border border-teal-500/10 backdrop-blur-md shadow-lg">
-          {meta.pose} â€¢ {meta.label}
+          {meta.pose} {"\u2022"} {meta.label}
         </span>
-        <span className="text-[9px] font-bold text-indigo-400/90 tracking-widest uppercase bg-slate-950/80 px-2.5 py-1 rounded-lg border border-indigo-500/10 backdrop-blur-md shadow-lg">
-          Step {exerciseId} of 13
+        <span className="text-[8px] font-bold text-emerald-400/70 tracking-wider bg-slate-950/80 px-2 py-1 rounded-lg border border-emerald-500/10 backdrop-blur-md">
+          {"\ud83c\udfaf"} {meta.muscles}
         </span>
       </div>
 
-      {/* CSS animation for the breathing/subtle scale effect */}
+      {/* CSS animations for single-image motion effects */}
       <style>{`
-        @keyframes exerciseBreathe {
-          0%, 100% { transform: scale(1) translateY(0px); }
-          50% { transform: scale(1.015) translateY(-2px); }
+        @keyframes exMotionLegRaise {
+          0%, 100% { transform: scale(1) translateY(0); }
+          50% { transform: scale(1.04) translateY(-6px); }
+        }
+        @keyframes exMotionPelvicTilt {
+          0%, 100% { transform: scale(1) translateY(0); }
+          50% { transform: scale(1.02) translateY(-3px); }
+        }
+        @keyframes exMotionHipRoll {
+          0%, 100% { transform: scale(1) rotate(0deg); }
+          25% { transform: scale(1.02) rotate(1.5deg); }
+          75% { transform: scale(1.02) rotate(-1.5deg); }
+        }
+        @keyframes exMotionBridge {
+          0%, 100% { transform: scale(1) translateY(0); }
+          50% { transform: scale(1.05) translateY(-8px); }
+        }
+        @keyframes exMotionProneLeg {
+          0%, 100% { transform: scale(1) translateY(0); }
+          50% { transform: scale(1.03) translateY(-5px) rotate(-1deg); }
+        }
+        @keyframes exMotionHipExt {
+          0%, 100% { transform: scale(1) translateY(0); }
+          50% { transform: scale(1.03) translateY(-4px); }
+        }
+        @keyframes exMotionBirdDog {
+          0%, 100% { transform: scale(1) translateX(0); }
+          50% { transform: scale(1.04) translateX(4px) translateY(-3px); }
+        }
+        @keyframes exMotionChildRock {
+          0%, 100% { transform: scale(1) translateX(0); }
+          50% { transform: scale(1.03) translateX(6px) translateY(3px); }
+        }
+        @keyframes exMotionPressUp {
+          0%, 100% { transform: scale(1) translateY(0) rotate(0deg); }
+          50% { transform: scale(1.05) translateY(-8px) rotate(-1.5deg); }
         }
       `}</style>
     </div>
   );
 };
-
 
 
 export default function App() {
@@ -330,23 +442,43 @@ export default function App() {
         return;
       }
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'hi-IN';
-      utterance.rate = 0.85; // Natural pace
-      utterance.pitch = 1.0;
+      setTtsError("");
 
-      const voices = window.speechSynthesis.getVoices();
-      const hindiVoice = voices.find(v => v.lang.includes('hi') || v.name.includes('Hindi'));
-      if (hindiVoice) utterance.voice = hindiVoice;
+      const doSpeak = () => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'hi-IN';
+        utterance.rate = 0.85;
+        utterance.pitch = 1.0;
 
-      utterance.onstart = () => setIsPlaying(true);
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = (e) => {
-        console.error("TTS speech synthesis error:", e);
-        setIsPlaying(false);
+        const voices = window.speechSynthesis.getVoices();
+        const hindiVoice = voices.find(v => v.lang.startsWith('hi') || v.name.toLowerCase().includes('hindi'));
+        if (hindiVoice) utterance.voice = hindiVoice;
+
+        utterance.onstart = () => setIsPlaying(true);
+        utterance.onend = () => setIsPlaying(false);
+        utterance.onerror = (e) => {
+          console.error("TTS speech synthesis error:", e);
+          setIsPlaying(false);
+          if (e.error !== 'interrupted') {
+            setTtsError("Hindi voice may not be available on this device.");
+          }
+        };
+        
+        window.speechSynthesis.speak(utterance);
       };
-      
-      window.speechSynthesis.speak(utterance);
+
+      // Chrome loads voices asynchronously - wait for them if needed
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.onvoiceschanged = null;
+          doSpeak();
+        };
+        // Fallback: try anyway after 200ms if voiceschanged never fires
+        setTimeout(() => doSpeak(), 200);
+      } else {
+        doSpeak();
+      }
     } catch (err) {
       setTtsError("Audio playback failed.");
       setIsPlaying(false);
@@ -460,7 +592,7 @@ export default function App() {
     }
   };
 
-  const progressPercentage = ((currentIndex) / routineList.length) * 100;
+  const progressPercentage = ((currentIndex + 1) / routineList.length) * 100;
 
   // --- RENDER: HOME SCREEN ---
   if (!started) {
@@ -737,7 +869,7 @@ export default function App() {
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-1.5 tracking-tight font-outfit text-white leading-tight">
               {exercise.title}
             </h2>
-            <h3 className="text-lg text-teal-400 font-bold font-outfit">
+            <h3 className="text-lg text-teal-400 font-bold font-hindi">
               {exercise.title_hi}
             </h3>
           </div>
@@ -759,8 +891,8 @@ export default function App() {
 
           {/* Hindi Instructions with Audio */}
           <div className="bg-teal-950/10 p-5 rounded-2xl border border-teal-500/10 hover:border-teal-500/20 transition-all duration-300 shadow-lg shadow-teal-950/5">
-            <h4 className="text-[10px] font-bold text-teal-500/80 uppercase tracking-widest mb-1.5">à¤¹à¤¿à¤‚à¤¦à¥€ à¤—à¤¾à¤‡à¤¡</h4>
-            <p className="text-slate-200 leading-relaxed text-base md:text-lg mb-4 font-semibold">
+            <h4 className="text-[10px] font-bold text-teal-500/80 uppercase tracking-widest mb-1.5">हिन्दी गाइड</h4>
+            <p className="text-slate-200 leading-relaxed text-base md:text-lg mb-4 font-semibold font-hindi">
               {exercise.instruction_hi}
             </p>
             

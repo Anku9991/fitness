@@ -4,6 +4,12 @@
   --background: #090d16;
   --foreground: #f8fafc;
   --font-sans: var(--font-geist-sans);
+  --font-hindi: var(--font-hindi);
+}
+
+/* Hindi / Devanagari font family helper */
+.font-hindi {
+  font-family: var(--font-hindi), 'Noto Sans Devanagari', sans-serif;
 }
 
 @theme {

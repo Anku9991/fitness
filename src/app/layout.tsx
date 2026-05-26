@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Outfit } from "next/font/google";
+import { Geist, Outfit, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +10,12 @@ const geistSans = Geist({
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
+});
+
+const notoDevanagari = Noto_Sans_Devanagari({
+  variable: "--font-hindi",
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -33,7 +39,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${outfit.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${outfit.variable} ${notoDevanagari.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-[#090d16] text-[#f8fafc] selection:bg-teal-500/30 selection:text-teal-200">
         {children}
