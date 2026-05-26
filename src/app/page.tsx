@@ -135,479 +135,707 @@ const fetchGeminiAPI = async (systemInstruction: string, promptText: string, res
   return result;
 };
 
-// --- DYNAMIC BIOLOGICAL ANATOMICAL HUMAN MOVEMENT VISUALIZER ---
+// --- REALISTIC HUMAN EXERCISE VISUALIZER ---
+// Exercise animation configs
+const EXERCISE_ANIMATIONS: Record<number, string> = {
+  1: "wallSlide",
+  2: "legSwing",
+  3: "kneeToChest",
+  4: "doubleKneeChest",
+  5: "legRaiseLying",
+  6: "pelvicTilt",
+  7: "hipRoll",
+  8: "gluteBridge",
+  9: "proneLegLift",
+  10: "hipExtProne",
+  11: "birdDog",
+  12: "childRock",
+  13: "pressUp",
+};
+
+const EXERCISE_LABELS: Record<number, { pose: string; label: string }> = {
+  1: { pose: "Standing", label: "Wall Squat" },
+  2: { pose: "Standing", label: "Leg Swing" },
+  3: { pose: "Lying", label: "Knee Pull" },
+  4: { pose: "Lying", label: "Double Knee" },
+  5: { pose: "Lying", label: "Leg Raise" },
+  6: { pose: "Lying", label: "Pelvic Tilt" },
+  7: { pose: "Lying", label: "Hip Roll" },
+  8: { pose: "Lying", label: "Bridge" },
+  9: { pose: "Prone", label: "Leg Lift" },
+  10: { pose: "Prone", label: "Hip Ext." },
+  11: { pose: "All-Fours", label: "Bird Dog" },
+  12: { pose: "All-Fours", label: "Child Rock" },
+  13: { pose: "Prone", label: "Press-Up" },
+};
+
 const HumanExerciseVisualizer = ({ exerciseId }: { exerciseId: number }) => {
-  const [t, setT] = useState(0);
+  const animName = EXERCISE_ANIMATIONS[exerciseId] || "wallSlide";
+  const meta = EXERCISE_LABELS[exerciseId] || { pose: "Active", label: "Exercise" };
 
-  // Buttery-smooth 60fps physics simulation loop
-  useEffect(() => {
-    let animId: number;
-    const startTime = Date.now();
-    const loop = () => {
-      // 3.5 second cycle for a natural execution speed
-      const elapsed = (Date.now() - startTime) / 1000;
-      const cycleTime = (elapsed % 3.5) / 3.5;
-      setT(cycleTime * 2 * Math.PI);
-      animId = requestAnimationFrame(loop);
-    };
-    animId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animId);
-  }, [exerciseId]);
+  // Skin / clothing color tokens
+  const skin = "#c8956c";
+  const skinDark = "#a0714a";
+  const shirt = "#2563eb";
+  const shirtDark = "#1d4ed8";
+  const pants = "#1e293b";
+  const pantsDark = "#0f172a";
+  const hair = "#1c1003";
+  const mat = "#14b8a6";
+  const wall = "#334155";
+  const chair = "#475569";
+  const shadow = "rgba(0,0,0,0.18)";
 
-  // Movement interpolation factor (0 to 1 back and forth)
-  const s = (Math.sin(t) + 1) / 2;
-
-  // Let's declare our joint rendering coordinates
-  let head = { x: 100, y: 40 };
-  let shoulder = { x: 100, y: 60 };
-  let elbow = { x: 120, y: 80 };
-  let hand = { x: 135, y: 95 };
-  let hip = { x: 100, y: 105 };
-  let knee1 = { x: 85, y: 138 }; // Left / Active
-  let ankle1 = { x: 85, y: 170 };
-  let knee2 = { x: 115, y: 138 }; // Right / Static
-  let ankle2 = { x: 115, y: 170 };
-
-  // Custom objects for environment
-  let chair = null;
-  let wall = null;
-  let floorY = 170;
-  let renderStyle = "standing"; // standing, supine, prone, all-fours
-
-  // Compute exact biologically correct anatomical coordinates for each exercise
-  if (exerciseId === 1) {
-    // 1. Wall Slides (Standing Squat against wall)
-    renderStyle = "standing";
-    wall = { x: 70, y1: 20, y2: 185 };
-    
-    // Hip and torso slide down the wall
-    const slideOffset = 25 * s;
-    head = { x: 85, y: 40 + slideOffset };
-    shoulder = { x: 85, y: 58 + slideOffset };
-    elbow = { x: 105, y: 75 + slideOffset };
-    hand = { x: 115, y: 90 + slideOffset };
-    hip = { x: 85, y: 102 + slideOffset };
-    
-    // Left & Right legs squat forward
-    // Ankles stay flat, knees bend forward and down
-    knee1 = { x: 108 + 5 * s, y: 138 + 10 * s };
-    ankle1 = { x: 88, y: 170 };
-    knee2 = { x: 108 + 5 * s, y: 138 + 10 * s };
-    ankle2 = { x: 88, y: 170 };
-
-  } else if (exerciseId === 2) {
-    // 2. Back Leg Swing (Standing behind chair)
-    renderStyle = "standing";
-    chair = { x: 130, y: 90 };
-    
-    head = { x: 95 - 4 * s, y: 40 + 2 * s };
-    shoulder = { x: 95 - 4 * s, y: 58 + 2 * s };
-    // Hands holding the chair backrest
-    elbow = { x: 112, y: 75 };
-    hand = { x: 130, y: 90 };
-    hip = { x: 95, y: 102 };
-    
-    // Right leg stands straight (Static)
-    knee2 = { x: 95, y: 136 };
-    ankle2 = { x: 95, y: 170 };
-    
-    // Left leg swings back (Active)
-    knee1 = { x: 95 - 16 * s, y: 136 - 4 * s };
-    ankle1 = { x: 95 - 28 * s, y: 170 - 12 * s };
-
-  } else if (exerciseId === 3) {
-    // 3. Knee to Chest (Supine Single Leg Pull)
-    renderStyle = "supine";
-    floorY = 150;
-    
-    head = { x: 50, y: 140 };
-    shoulder = { x: 70, y: 142 };
-    hip = { x: 115, y: 142 };
-    
-    // Right leg straight on floor
-    knee2 = { x: 145, y: 142 };
-    ankle2 = { x: 175, y: 142 };
-    
-    // Left leg pulls to chest (knee bends up, ankle slides closer)
-    knee1 = { x: 145 - 50 * s, y: 142 - 38 * s };
-    ankle1 = { x: 175 - 75 * s, y: 142 - 8 * s };
-    
-    // Hands clasp knee to pull it
-    elbow = { x: 85 + 5 * s, y: 130 - 15 * s };
-    hand = { x: 145 - 50 * s, y: 142 - 38 * s };
-
-  } else if (exerciseId === 4) {
-    // 4. Lower Abdominal Exercises (Supine Double Knees Pull)
-    renderStyle = "supine";
-    floorY = 150;
-    
-    head = { x: 50, y: 140 };
-    shoulder = { x: 70, y: 142 };
-    hip = { x: 115, y: 142 };
-    
-    // Both knees pull to chest together
-    knee1 = { x: 145 - 45 * s, y: 142 - 38 * s };
-    ankle1 = { x: 175 - 70 * s, y: 142 - 15 * s };
-    knee2 = { x: 145 - 45 * s, y: 142 - 38 * s };
-    ankle2 = { x: 175 - 70 * s, y: 142 - 15 * s };
-    
-    elbow = { x: 85 + 5 * s, y: 130 - 15 * s };
-    hand = { x: 145 - 45 * s, y: 142 - 38 * s };
-
-  } else if (exerciseId === 5) {
-    // 5. Knees to Chest Exercise (Supine Alternate Straight Leg Raise)
-    renderStyle = "supine";
-    floorY = 150;
-    
-    head = { x: 50, y: 140 };
-    shoulder = { x: 70, y: 142 };
-    hip = { x: 115, y: 142 };
-    
-    // Hand relaxed at side
-    elbow = { x: 90, y: 142 };
-    hand = { x: 105, y: 142 };
-    
-    // Right leg flat on floor
-    knee2 = { x: 145, y: 142 };
-    ankle2 = { x: 175, y: 142 };
-    
-    // Left leg raises straight up (knee straight, ankle swings up)
-    // At s = 1, leg points straight up
-    knee1 = { x: 145 - 18 * s, y: 142 - 40 * s };
-    ankle1 = { x: 175 - 42 * s, y: 142 - 76 * s };
-
-  } else if (exerciseId === 6) {
-    // 6. Pelvic Tilt (Supine Lower Back Press)
-    renderStyle = "supine";
-    floorY = 150;
-    
-    head = { x: 50, y: 140 };
-    shoulder = { x: 70, y: 142 };
-    
-    // Knees slightly bent, feet flat
-    hip = { x: 115, y: 142 };
-    knee1 = { x: 135, y: 125 };
-    ankle1 = { x: 155, y: 142 };
-    knee2 = { x: 135, y: 125 };
-    ankle2 = { x: 155, y: 142 };
-    
-    elbow = { x: 90, y: 142 };
-    hand = { x: 105, y: 142 };
-    
-    // Pelvis rotates/presses down. Lumbar spine (between shoulder & hip) dips down
-    // Highlight lumbar region morphing Y
-    hip = { x: 115, y: 142 + 2.5 * s };
-
-  } else if (exerciseId === 7) {
-    // 7. Hip Rolling (Supine Knees Roll Side-to-Side)
-    renderStyle = "supine";
-    floorY = 150;
-    
-    head = { x: 50, y: 140 };
-    shoulder = { x: 70, y: 142 };
-    hip = { x: 115, y: 142 };
-    
-    elbow = { x: 80, y: 130 };
-    hand = { x: 80, y: 115 }; // arms crossed over chest
-    
-    // Knees bent, feet flat. Knees sway left & right
-    const rollAngle = Math.sin(t); // goes -1 to +1
-    knee1 = { x: 132 + 20 * rollAngle, y: 122 + 12 * Math.abs(rollAngle) };
-    ankle1 = { x: 150, y: 142 };
-    knee2 = { x: 132 + 20 * rollAngle, y: 122 + 12 * Math.abs(rollAngle) };
-    ankle2 = { x: 150, y: 142 };
-
-  } else if (exerciseId === 8) {
-    // 8. Pelvic Lift (Supine Glute Bridge Lift)
-    renderStyle = "supine";
-    floorY = 150;
-    
-    head = { x: 50, y: 140 };
-    shoulder = { x: 70, y: 142 }; // stays flat on mat
-    
-    elbow = { x: 90, y: 142 };
-    hand = { x: 105, y: 142 };
-    
-    // Hips and knees lift up together in a bridge pose
-    const liftOffset = 30 * s;
-    hip = { x: 115, y: 142 - liftOffset };
-    knee1 = { x: 138 - 8 * s, y: 125 - 12 * s };
-    ankle1 = { x: 148, y: 142 };
-    knee2 = { x: 138 - 8 * s, y: 125 - 12 * s };
-    ankle2 = { x: 148, y: 142 };
-
-  } else if (exerciseId === 9) {
-    // 9. Leg Raises (Prone Single Leg Lift)
-    renderStyle = "prone";
-    floorY = 150;
-    
-    head = { x: 50, y: 142 };
-    shoulder = { x: 70, y: 142 };
-    hip = { x: 115, y: 142 };
-    
-    elbow = { x: 60, y: 145 };
-    hand = { x: 50, y: 145 };
-    
-    // Right leg stays straight on mat
-    knee2 = { x: 145, y: 142 };
-    ankle2 = { x: 175, y: 142 };
-    
-    // Left leg lifts straight up off ground
-    knee1 = { x: 145 + 3 * s, y: 142 - 12 * s };
-    ankle1 = { x: 175 + 6 * s, y: 142 - 25 * s };
-
-  } else if (exerciseId === 10) {
-    // 10. Hip Extension (Prone Thigh Lift, Knee Bent 90deg)
-    renderStyle = "prone";
-    floorY = 150;
-    
-    head = { x: 50, y: 142 };
-    shoulder = { x: 70, y: 142 };
-    hip = { x: 115, y: 142 };
-    
-    elbow = { x: 60, y: 145 };
-    hand = { x: 50, y: 145 };
-    
-    // Right leg straight
-    knee2 = { x: 145, y: 142 };
-    ankle2 = { x: 175, y: 142 };
-    
-    // Left knee bends 90 degrees and thigh lifts up
-    // Knee starts at (145, 142), bends Y to lift
-    knee1 = { x: 145, y: 142 - 10 * s };
-    ankle1 = { x: 145 - 2 * s, y: 112 - 10 * s }; // Ankle bent 90deg (foot facing ceiling)
-
-  } else if (exerciseId === 11) {
-    // 11. Hip Extension All-Fours (Kneeling leg extension)
-    renderStyle = "all-fours";
-    floorY = 150;
-    
-    // Supporting elements
-    hand = { x: 75, y: 150 };
-    elbow = { x: 75, y: 130 };
-    shoulder = { x: 75, y: 110 };
-    
-    // Right knee supports on floor (Static)
-    knee2 = { x: 120, y: 150 };
-    ankle2 = { x: 135, y: 150 };
-    
-    // Left leg extends straight out parallel to floor
-    hip = { x: 120, y: 110 };
-    knee1 = { x: 120 + 25 * s, y: 150 - 40 * s }; // moves to Y=110
-    ankle1 = { x: 120 + 55 * s, y: 150 - 40 * s }; // extends back straight
-    
-    // Spine alignment arches slightly
-    head = { x: 55, y: 110 - 6 * s };
-
-  } else if (exerciseId === 12) {
-    // 12. Hand-Knee Rocking (Kneeling Child Stretch Rocking)
-    renderStyle = "all-fours";
-    floorY = 150;
-    
-    // Rocking factor moves the whole torso back & down
-    const rockOffset = 30 * s;
-    
-    hand = { x: 75, y: 150 }; // Hands anchored flat
-    elbow = { x: 75 + 10 * s, y: 130 + 15 * s }; // arms stretch out
-    shoulder = { x: 75 + 28 * s, y: 110 + 25 * s }; // shoulders drop
-    
-    knee1 = { x: 120, y: 150 }; // Knees anchored flat
-    ankle1 = { x: 135, y: 150 };
-    knee2 = { x: 120, y: 150 };
-    ankle2 = { x: 135, y: 150 };
-    
-    hip = { x: 120 - 15 * s, y: 110 + 35 * s }; // Hips rock onto heels
-    head = { x: 55 + 28 * s, y: 110 + 26 * s }; // Head bows to floor
-
-  } else if (exerciseId === 13) {
-    // 13. Press Up (Prone Cobra Spine Arch)
-    renderStyle = "prone";
-    floorY = 150;
-    
-    // Lower body remains anchored on mat
-    hip = { x: 115, y: 142 };
-    knee1 = { x: 145, y: 142 };
-    ankle1 = { x: 175, y: 142 };
-    knee2 = { x: 145, y: 142 };
-    ankle2 = { x: 175, y: 142 };
-    
-    // Upper body pushes up (Shoulders, head lift, spine arches)
-    const pushUpOffset = 38 * s;
-    shoulder = { x: 70, y: 142 - pushUpOffset };
-    head = { x: 50 + 10 * s, y: 142 - 48 * s }; // Looks up
-    
-    // Hands remain anchored on floor
-    hand = { x: 70, y: 150 };
-    elbow = { x: 70, y: 145 - pushUpOffset * 0.5 }; // arms straighten
-  }
-
-  // Helper: Glowing joint node
-  const JointNode = ({ cx, cy, label = "" }: { cx: number; cy: number; label?: string }) => (
-    <g>
-      <circle cx={cx} cy={cy} r="4.5" fill="#090d16" stroke="#14b8a6" strokeWidth="2.5" className="shadow-[0_0_10px_rgba(20,184,166,0.8)]" />
-      <circle cx={cx} cy={cy} r="1.5" fill="#f8fafc" />
-    </g>
-  );
+  // Unique filter/gradient IDs per exerciseId to avoid conflicts
+  const uid = `ex${exerciseId}`;
 
   return (
-    <div className="relative w-full h-64 md:h-80 flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-white/5 bg-slate-950/40 shadow-inner mb-6">
-      
-      {/* Dynamic premium glows */}
-      <div className="absolute inset-0 bg-teal-500/5 animate-pulse blur-3xl rounded-full scale-75"></div>
-      <div className="absolute inset-0 bg-indigo-500/5 blur-3xl rounded-full scale-50" style={{ animationDelay: "1.5s" }}></div>
-      
-      {/* The high-fidelity skeletal simulator canvas */}
-      <svg className="w-56 h-56 md:w-72 md:h-72 relative z-10" viewBox="0 0 200 200">
+    <div className="relative w-full flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 shadow-inner mb-6" style={{ minHeight: 280 }}>
+
+      <style>{`
+        @keyframes wallSlide {
+          0%,100% { transform: translateY(0px); }
+          50% { transform: translateY(22px); }
+        }
+        @keyframes wallSlideKnee {
+          0%,100% { transform: none; }
+          50% { transform: translateX(12px) translateY(8px); }
+        }
+        @keyframes legSwingBack {
+          0%,100% { transform-origin: 50% 0%; transform: rotate(0deg); }
+          50% { transform-origin: 50% 0%; transform: rotate(-30deg); }
+        }
+        @keyframes kneeToChestAnim {
+          0%,100% { transform-origin: 100% 50%; transform: rotate(0deg); }
+          50% { transform-origin: 100% 50%; transform: rotate(-70deg); }
+        }
+        @keyframes doubleKneeAnim {
+          0%,100% { transform-origin: 0% 50%; transform: rotate(0deg); }
+          50% { transform-origin: 0% 50%; transform: rotate(70deg); }
+        }
+        @keyframes legRaiseLying {
+          0%,100% { transform-origin: 0% 50%; transform: rotate(0deg); }
+          50% { transform-origin: 0% 50%; transform: rotate(-55deg); }
+        }
+        @keyframes pelvicTiltAnim {
+          0%,100% { transform: translateY(0px); }
+          50% { transform: translateY(-3px); }
+        }
+        @keyframes hipRollAnim {
+          0% { transform-origin: 0% 50%; transform: rotate(0deg); }
+          25% { transform-origin: 0% 50%; transform: rotate(28deg); }
+          75% { transform-origin: 0% 50%; transform: rotate(-28deg); }
+          100% { transform-origin: 0% 50%; transform: rotate(0deg); }
+        }
+        @keyframes gluteBridgeAnim {
+          0%,100% { transform: translateY(0px); }
+          50% { transform: translateY(-28px); }
+        }
+        @keyframes gluteBridgeKnee {
+          0%,100% { transform: none; }
+          50% { transform: translateX(-6px) translateY(-10px); }
+        }
+        @keyframes proneLegLiftAnim {
+          0%,100% { transform-origin: 0% 50%; transform: rotate(0deg); }
+          50% { transform-origin: 0% 50%; transform: rotate(-18deg); }
+        }
+        @keyframes hipExtProneAnim {
+          0%,100% { transform-origin: 0% 50%; transform: rotate(0deg) translateY(0); }
+          50% { transform-origin: 0% 50%; transform: rotate(-14deg) translateY(-2px); }
+        }
+        @keyframes birdDogLeg {
+          0%,100% { transform-origin: 0% 50%; transform: rotate(0deg); }
+          50% { transform-origin: 0% 50%; transform: rotate(-35deg); }
+        }
+        @keyframes birdDogArm {
+          0%,100% { transform-origin: 100% 50%; transform: rotate(0deg); }
+          50% { transform-origin: 100% 50%; transform: rotate(30deg); }
+        }
+        @keyframes childRockAnim {
+          0%,100% { transform: translateX(0px) translateY(0px); }
+          50% { transform: translateX(22px) translateY(12px); }
+        }
+        @keyframes pressUpAnim {
+          0%,100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-30px) rotate(-6deg); }
+        }
+        @keyframes pressUpArm {
+          0%,100% { transform-origin: 50% 100%; transform: rotate(0deg); }
+          50% { transform-origin: 50% 100%; transform: rotate(-30deg); }
+        }
+        @keyframes breathe {
+          0%,100% { transform: scaleY(1); }
+          50% { transform: scaleY(1.04); }
+        }
+        @keyframes subtleBob {
+          0%,100% { transform: translateY(0px); }
+          50% { transform: translateY(-1.5px); }
+        }
+      `}</style>
+
+      <svg
+        width="100%"
+        height="280"
+        viewBox="0 0 320 280"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ display: "block" }}
+      >
         <defs>
-          {/* Neon Gradients */}
-          <linearGradient id="spineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#d946ef" />
+          <radialGradient id={`${uid}skinGrad`} cx="50%" cy="35%" r="55%">
+            <stop offset="0%" stopColor={skin} />
+            <stop offset="100%" stopColor={skinDark} />
+          </radialGradient>
+          <radialGradient id={`${uid}shirtGrad`} cx="50%" cy="30%" r="65%">
+            <stop offset="0%" stopColor={shirt} />
+            <stop offset="100%" stopColor={shirtDark} />
+          </radialGradient>
+          <linearGradient id={`${uid}pantsGrad`} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor={pants} />
+            <stop offset="100%" stopColor={pantsDark} />
           </linearGradient>
-          <linearGradient id="limbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#14b8a6" />
-            <stop offset="100%" stopColor="#10b981" />
-          </linearGradient>
-          
-          {/* Glowing Shadow Filters */}
-          <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+          <filter id={`${uid}shadow`} x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#000" floodOpacity="0.35" />
           </filter>
+          <filter id={`${uid}glow`} x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <radialGradient id={`${uid}floorGlow`} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="rgba(20,184,166,0.18)" />
+            <stop offset="100%" stopColor="rgba(20,184,166,0)" />
+          </radialGradient>
         </defs>
 
-        {/* Ambient Grid overlay for medical interface feel */}
-        <g stroke="rgba(255,255,255,0.02)" strokeWidth="0.5">
-          <line x1="20" y1="0" x2="20" y2="200" />
-          <line x1="40" y1="0" x2="40" y2="200" />
-          <line x1="60" y1="0" x2="60" y2="200" />
-          <line x1="80" y1="0" x2="80" y2="200" />
-          <line x1="100" y1="0" x2="100" y2="200" />
-          <line x1="120" y1="0" x2="120" y2="200" />
-          <line x1="140" y1="0" x2="140" y2="200" />
-          <line x1="160" y1="0" x2="160" y2="200" />
-          <line x1="180" y1="0" x2="180" y2="200" />
-          <line x1="0" y1="20" x2="200" y2="20" />
-          <line x1="0" y1="40" x2="200" y2="40" />
-          <line x1="0" y1="60" x2="200" y2="60" />
-          <line x1="0" y1="80" x2="200" y2="80" />
-          <line x1="0" y1="100" x2="200" y2="100" />
-          <line x1="0" y1="120" x2="200" y2="120" />
-          <line x1="0" y1="140" x2="200" y2="140" />
-          <line x1="0" y1="160" x2="200" y2="160" />
-          <line x1="0" y1="180" x2="200" y2="180" />
-        </g>
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 1: WALL SLIDES - Standing squat against wall */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 1 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              {/* Wall */}
+              <rect x="96" y="30" width="18" height="200" rx="3" fill={wall} opacity="0.7" />
+              <rect x="96" y="30" width="5" height="200" rx="2" fill="rgba(255,255,255,0.06)" />
+              {/* Floor */}
+              <rect x="60" y="228" width="200" height="8" rx="4" fill="rgba(255,255,255,0.08)" />
+              <ellipse cx="180" cy="234" rx="70" ry="5" fill={`url(#${uid}floorGlow)`} />
+              {/* Body group slides down */}
+              <g style={{ animation: "wallSlide 2.6s ease-in-out infinite" }}>
+                {/* Shadow on floor */}
+                <ellipse cx="182" cy="234" rx="30" ry="5" fill={shadow} />
+                {/* === LEFT LEG (slides with body, knee group animated separately) === */}
+                <g style={{ animation: "wallSlideKnee 2.6s ease-in-out infinite" }}>
+                  {/* Left thigh */}
+                  <rect x="162" y="168" width="18" height="52" rx="9" fill={`url(#${uid}pantsGrad)`} />
+                  {/* Left shin */}
+                  <rect x="164" y="210" width="15" height="48" rx="7" fill={`url(#${uid}pantsGrad)`} />
+                  {/* Left foot */}
+                  <ellipse cx="171" cy="256" rx="14" ry="6" fill={skinDark} />
+                </g>
+                {/* === RIGHT LEG === */}
+                <g style={{ animation: "wallSlideKnee 2.6s ease-in-out infinite" }}>
+                  <rect x="184" y="168" width="18" height="52" rx="9" fill={pantsDark} />
+                  <rect x="186" y="210" width="15" height="48" rx="7" fill={pantsDark} />
+                  <ellipse cx="193" cy="256" rx="14" ry="6" fill={skinDark} />
+                </g>
+                {/* === TORSO === */}
+                <rect x="154" y="118" width="50" height="58" rx="14" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.6s ease-in-out infinite" }} />
+                {/* Shirt collar detail */}
+                <rect x="170" y="118" width="18" height="8" rx="4" fill={shirtDark} />
+                {/* === LEFT ARM === */}
+                <rect x="138" y="122" width="18" height="38" rx="9" fill={`url(#${uid}skinGrad)`} />
+                <ellipse cx="147" cy="162" rx="8" ry="6" fill={skin} />
+                {/* === RIGHT ARM === */}
+                <rect x="202" y="122" width="18" height="38" rx="9" fill={`url(#${uid}skinGrad)`} />
+                <ellipse cx="211" cy="162" rx="8" ry="6" fill={skin} />
+                {/* === NECK === */}
+                <rect x="172" y="105" width="14" height="18" rx="6" fill={`url(#${uid}skinGrad)`} />
+                {/* === HEAD === */}
+                <ellipse cx="179" cy="92" rx="20" ry="22" fill={`url(#${uid}skinGrad)`} />
+                {/* Hair */}
+                <ellipse cx="179" cy="74" rx="20" ry="10" fill={hair} />
+                <rect x="159" y="73" width="40" height="12" rx="6" fill={hair} />
+                {/* Eyes */}
+                <ellipse cx="172" cy="90" rx="3.5" ry="3" fill="#fff" />
+                <ellipse cx="186" cy="90" rx="3.5" ry="3" fill="#fff" />
+                <circle cx="173" cy="91" r="1.8" fill="#333" />
+                <circle cx="187" cy="91" r="1.8" fill="#333" />
+                {/* Mouth */}
+                <path d="M 174 98 Q 179 102 184 98" stroke="#a06050" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                {/* Nose */}
+                <ellipse cx="179" cy="95" rx="2.5" ry="1.5" fill={skinDark} opacity="0.5" />
+              </g>
+            </g>
+          );
+        })()}
 
-        {/* 1. Support Structures (Floor, Wall, Chair) */}
-        <line x1="20" y1={floorY} x2="180" y2={floorY} stroke="rgba(255,255,255,0.15)" strokeWidth="2.5" strokeLinecap="round" />
-        {wall && (
-          <line x1={wall.x} y1={wall.y1} x2={wall.x} y2={wall.y2} stroke="rgba(255,255,255,0.15)" strokeWidth="2.5" strokeLinecap="round" />
-        )}
-        {chair && (
-          <g stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none" strokeLinecap="round">
-            <line x1={chair.x} y1={chair.y} x2={chair.x} y2="170" />
-            <line x1={chair.x} y1={chair.y} x2={chair.x + 20} y2={chair.y} />
-            <line x1={chair.x + 20} y1={chair.y} x2={chair.x + 20} y2="170" />
-            <line x1={chair.x} y1={chair.y + 25} x2={chair.x + 20} y2={chair.y + 25} /> {/* Seat */}
-          </g>
-        )}
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 2: BACK LEG SWING - Standing behind chair */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 2 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              {/* Floor */}
+              <rect x="60" y="228" width="200" height="8" rx="4" fill="rgba(255,255,255,0.08)" />
+              <ellipse cx="180" cy="234" rx="70" ry="5" fill={`url(#${uid}floorGlow)`} />
+              {/* Chair */}
+              <rect x="220" y="155" width="8" height="72" rx="3" fill={chair} />
+              <rect x="246" y="155" width="8" height="72" rx="3" fill={chair} />
+              <rect x="216" y="155" width="42" height="10" rx="5" fill={chair} />
+              <rect x="218" y="192" width="40" height="8" rx="4" fill={chair} />
+              <rect x="215" y="155" width="44" height="5" rx="3" fill="rgba(255,255,255,0.08)" />
+              {/* Body */}
+              <g>
+                <ellipse cx="180" cy="234" rx="28" ry="5" fill={shadow} />
+                {/* Static right leg */}
+                <rect x="178" y="168" width="18" height="65" rx="9" fill={pantsDark} />
+                <ellipse cx="187" cy="232" rx="13" ry="6" fill={skinDark} />
+                {/* Left leg (swings back) */}
+                <g style={{ transformOrigin: "180px 170px", animation: "legSwingBack 2.2s ease-in-out infinite" }}>
+                  <rect x="158" y="168" width="18" height="65" rx="9" fill={`url(#${uid}pantsGrad)`} />
+                  <ellipse cx="167" cy="232" rx="13" ry="6" fill={skinDark} />
+                </g>
+                {/* Torso */}
+                <rect x="152" y="118" width="52" height="58" rx="14" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.2s ease-in-out infinite" }} />
+                <rect x="168" y="118" width="20" height="8" rx="4" fill={shirtDark} />
+                {/* Right arm (reaching to chair) */}
+                <line x1="202" y1="134" x2="224" y2="162" stroke={skin} strokeWidth="14" strokeLinecap="round" />
+                <ellipse cx="224" cy="163" rx="8" ry="6" fill={skin} />
+                {/* Left arm */}
+                <rect x="136" y="122" width="18" height="40" rx="9" fill={`url(#${uid}skinGrad)`} />
+                {/* Neck */}
+                <rect x="172" y="105" width="14" height="18" rx="6" fill={`url(#${uid}skinGrad)`} />
+                {/* Head */}
+                <ellipse cx="179" cy="92" rx="20" ry="22" fill={`url(#${uid}skinGrad)`} />
+                <ellipse cx="179" cy="74" rx="20" ry="10" fill={hair} />
+                <rect x="159" y="73" width="40" height="12" rx="6" fill={hair} />
+                <ellipse cx="172" cy="90" rx="3.5" ry="3" fill="#fff" />
+                <ellipse cx="186" cy="90" rx="3.5" ry="3" fill="#fff" />
+                <circle cx="173" cy="91" r="1.8" fill="#333" />
+                <circle cx="187" cy="91" r="1.8" fill="#333" />
+                <path d="M 174 98 Q 179 102 184 98" stroke="#a06050" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </g>
+            </g>
+          );
+        })()}
 
-        {/* 2. Stylized Muscle Contour / Silhouette Body Outline */}
-        {/* Draw a subtle glow path that fits around the joints to make it look like a real body */}
-        <g fill="rgba(99, 102, 241, 0.04)" stroke="rgba(99, 102, 241, 0.08)" strokeWidth="1" filter="url(#neonGlow)">
-          <path d={`
-            M ${head.x} ${head.y - 12}
-            C ${head.x + 12} ${head.y - 12}, ${head.x + 12} ${head.y + 12}, ${head.x} ${head.y + 12}
-            C ${head.x - 12} ${head.y + 12}, ${head.x - 12} ${head.y - 12}, ${head.x} ${head.y - 12} Z
-          `} />
-          <path d={`
-            M ${shoulder.x} ${shoulder.y - 6}
-            L ${hip.x} ${hip.y - 6}
-            L ${knee1.x} ${knee1.y - 4}
-            L ${ankle1.x} ${ankle1.y}
-            L ${ankle1.x + 4} ${ankle1.y + 4}
-            L ${ankle1.x - 4} ${ankle1.y + 4}
-            L ${knee1.x - 4} ${knee1.y + 4}
-            L ${hip.x - 6} ${hip.y + 6}
-            L ${shoulder.x - 6} ${shoulder.y + 6} Z
-          `} />
-        </g>
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 3: KNEE TO CHEST - Supine Single */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 3 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              {/* Mat */}
+              <rect x="30" y="188" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="188" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              {/* Body lying down */}
+              {/* Head (left side) */}
+              <ellipse cx="60" cy="178" rx="19" ry="18" fill={`url(#${uid}skinGrad)`} />
+              <ellipse cx="60" cy="162" rx="18" ry="8" fill={hair} />
+              <rect x="42" y="161" width="36" height="10" rx="5" fill={hair} />
+              <ellipse cx="66" cy="175" rx="3" ry="2.5" fill="#fff" />
+              <circle cx="67" cy="176" r="1.5" fill="#333" />
+              <path d="M 62 183 Q 67 187 72 183" stroke="#a06050" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              {/* Neck */}
+              <rect x="76" y="174" width="18" height="12" rx="5" fill={`url(#${uid}skinGrad)`} />
+              {/* Torso */}
+              <rect x="82" y="168" width="80" height="32" rx="12" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.5s ease-in-out infinite" }} />
+              {/* Right arm (reaches to grab knee) */}
+              <g style={{ animation: "kneeToChestAnim 2.5s ease-in-out infinite" }}>
+                <line x1="88" y1="176" x2="120" y2="162" stroke={skin} strokeWidth="13" strokeLinecap="round" />
+                <ellipse cx="120" cy="162" rx="7" ry="5" fill={skin} />
+              </g>
+              {/* Left arm (relaxed) */}
+              <rect x="84" y="196" width="70" height="13" rx="6" fill={`url(#${uid}skinGrad)`} />
+              {/* Hip area */}
+              <rect x="154" y="172" width="28" height="26" rx="10" fill={`url(#${uid}pantsGrad)`} />
+              {/* Right leg on floor (static) */}
+              <rect x="178" y="180" width="90" height="20" rx="10" fill={pantsDark} />
+              <ellipse cx="268" cy="190" rx="10" ry="8" fill={skinDark} />
+              {/* Left leg pulling up to chest */}
+              <g style={{ transformOrigin: "165px 182px", animation: "kneeToChestAnim 2.5s ease-in-out infinite" }}>
+                <rect x="166" y="148" width="20" height="52" rx="10" fill={`url(#${uid}pantsGrad)`} />
+                <ellipse cx="176" cy="148" rx="10" ry="7" fill={skinDark} />
+              </g>
+            </g>
+          );
+        })()}
 
-        {/* 3. SKELETON / BONES SEGMENTS */}
-        <g fill="none" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#neonGlow)">
-          {/* Spine (glowing purple-magenta gradient) */}
-          <line x1={shoulder.x} y1={shoulder.y} x2={hip.x} y2={hip.y} stroke="url(#spineGrad)" />
-          
-          {/* Left Arm (Active) */}
-          <path d={`M ${shoulder.x} ${shoulder.y} L ${elbow.x} ${elbow.y} L ${hand.x} ${hand.y}`} stroke="url(#limbGrad)" strokeWidth="3.5" />
-          
-          {/* Supporting Leg (Right Leg) */}
-          <path d={`M ${hip.x} ${hip.y} L ${knee2.x} ${knee2.y} L ${ankle2.x} ${ankle2.y}`} stroke="rgba(20, 184, 166, 0.3)" strokeWidth="4.5" />
-          
-          {/* Active Leg (Left Leg) */}
-          <path d={`M ${hip.x} ${hip.y} L ${knee1.x} ${knee1.y} L ${ankle1.x} ${ankle1.y}`} stroke="url(#limbGrad)" />
-        </g>
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 4: DOUBLE KNEE TO CHEST */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 4 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="188" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="188" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              {/* Head */}
+              <ellipse cx="60" cy="178" rx="19" ry="18" fill={`url(#${uid}skinGrad)`} />
+              <ellipse cx="60" cy="162" rx="18" ry="8" fill={hair} />
+              <rect x="42" y="161" width="36" height="10" rx="5" fill={hair} />
+              <ellipse cx="66" cy="175" rx="3" ry="2.5" fill="#fff" />
+              <circle cx="67" cy="176" r="1.5" fill="#333" />
+              <path d="M 62 183 Q 67 187 72 183" stroke="#a06050" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              {/* Neck */}
+              <rect x="76" y="174" width="18" height="12" rx="5" fill={`url(#${uid}skinGrad)`} />
+              {/* Torso */}
+              <rect x="82" y="168" width="80" height="32" rx="12" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.5s ease-in-out infinite" }} />
+              {/* Both arms reaching for knees */}
+              <g style={{ animation: "doubleKneeAnim 2.5s ease-in-out infinite" }}>
+                <line x1="88" y1="176" x2="152" y2="162" stroke={skin} strokeWidth="12" strokeLinecap="round" />
+                <ellipse cx="152" cy="162" rx="7" ry="5" fill={skin} />
+              </g>
+              <g style={{ animation: "doubleKneeAnim 2.5s ease-in-out infinite" }}>
+                <line x1="88" y1="190" x2="152" y2="176" stroke={skin} strokeWidth="12" strokeLinecap="round" />
+              </g>
+              {/* Hip area */}
+              <rect x="152" y="170" width="30" height="28" rx="11" fill={`url(#${uid}pantsGrad)`} />
+              {/* Both legs pulled up */}
+              <g style={{ transformOrigin: "162px 180px", animation: "doubleKneeAnim 2.5s ease-in-out infinite" }}>
+                <rect x="155" y="140" width="20" height="54" rx="10" fill={`url(#${uid}pantsGrad)`} />
+                <ellipse cx="165" cy="140" rx="10" ry="8" fill={skinDark} />
+                <rect x="174" y="148" width="18" height="48" rx="9" fill={pantsDark} />
+                <ellipse cx="183" cy="148" rx="9" ry="7" fill={skinDark} />
+              </g>
+            </g>
+          );
+        })()}
 
-        {/* 4. ANATOMICAL CORES / MUSCLE TENSION GLOW */}
-        {/* Glow core in the lower back/lumbar segment representing muscle engagement */}
-        <circle 
-          cx={(hip.x + shoulder.x) / 2} 
-          cy={(hip.y + shoulder.y) / 2} 
-          r={7 + 3.5 * s} 
-          fill="rgba(245, 158, 11, 0.08)" 
-          stroke="rgba(245, 158, 11, 0.6)" 
-          strokeWidth="1.5" 
-          strokeDasharray="2,2"
-          className="animate-spin"
-          style={{ transformOrigin: `${(hip.x + shoulder.x) / 2}px ${(hip.y + shoulder.y) / 2}px`, animationDuration: "10s" }} 
-        />
-        
-        {/* 5. JOINTS NODES */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 5: STRAIGHT LEG RAISE lying */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 5 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="188" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="188" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              {/* Head */}
+              <ellipse cx="60" cy="178" rx="19" ry="18" fill={`url(#${uid}skinGrad)`} />
+              <ellipse cx="60" cy="162" rx="18" ry="8" fill={hair} />
+              <rect x="42" y="161" width="36" height="10" rx="5" fill={hair} />
+              <ellipse cx="66" cy="175" rx="3" ry="2.5" fill="#fff" />
+              <circle cx="67" cy="176" r="1.5" fill="#333" />
+              {/* Torso */}
+              <rect x="82" y="168" width="80" height="32" rx="12" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.5s ease-in-out infinite" }} />
+              <rect x="78" y="174" width="18" height="12" rx="5" fill={`url(#${uid}skinGrad)`} />
+              {/* Arms relaxed at sides */}
+              <rect x="84" y="196" width="70" height="12" rx="6" fill={`url(#${uid}skinGrad)`} />
+              {/* Hip */}
+              <rect x="152" y="170" width="30" height="28" rx="11" fill={`url(#${uid}pantsGrad)`} />
+              {/* Right leg flat on floor */}
+              <rect x="178" y="180" width="90" height="18" rx="9" fill={pantsDark} />
+              <ellipse cx="268" cy="189" rx="10" ry="8" fill={skinDark} />
+              {/* Left leg raises straight */}
+              <g style={{ transformOrigin: "165px 183px", animation: "legRaiseLying 2.5s ease-in-out infinite" }}>
+                <rect x="158" y="135" width="18" height="55" rx="9" fill={`url(#${uid}pantsGrad)`} />
+                <ellipse cx="167" cy="135" rx="9" ry="7" fill={skinDark} />
+              </g>
+            </g>
+          );
+        })()}
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 6: PELVIC TILT */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 6 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="200" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="200" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              {/* Head */}
+              <ellipse cx="58" cy="178" rx="19" ry="18" fill={`url(#${uid}skinGrad)`} />
+              <ellipse cx="58" cy="162" rx="18" ry="8" fill={hair} />
+              <rect x="40" y="161" width="36" height="10" rx="5" fill={hair} />
+              <ellipse cx="64" cy="175" rx="3" ry="2.5" fill="#fff" />
+              <circle cx="65" cy="176" r="1.5" fill="#333" />
+              {/* Torso */}
+              <rect x="80" y="168" width="82" height="32" rx="12" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.5s ease-in-out infinite" }} />
+              <rect x="78" y="174" width="14" height="10" rx="5" fill={`url(#${uid}skinGrad)`} />
+              {/* Arms flat */}
+              <rect x="82" y="198" width="70" height="12" rx="6" fill={`url(#${uid}skinGrad)`} />
+              {/* Pelvic region (tilts up) */}
+              <g style={{ animation: "pelvicTiltAnim 2.5s ease-in-out infinite" }}>
+                <rect x="150" y="168" width="36" height="30" rx="12" fill={`url(#${uid}pantsGrad)`} />
+                {/* Bent knees */}
+                <line x1="160" y1="196" x2="192" y2="168" stroke={pants} strokeWidth="18" strokeLinecap="round" />
+                <line x1="174" y1="196" x2="206" y2="168" stroke={pantsDark} strokeWidth="16" strokeLinecap="round" />
+                {/* Feet on mat */}
+                <ellipse cx="196" cy="200" rx="16" ry="7" fill={skinDark} />
+                <ellipse cx="210" cy="200" rx="14" ry="7" fill={skinDark} />
+              </g>
+            </g>
+          );
+        })()}
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 7: HIP ROLLING */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 7 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="200" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="200" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              {/* Head */}
+              <ellipse cx="58" cy="178" rx="19" ry="18" fill={`url(#${uid}skinGrad)`} />
+              <ellipse cx="58" cy="162" rx="18" ry="8" fill={hair} />
+              <rect x="40" y="161" width="36" height="10" rx="5" fill={hair} />
+              <ellipse cx="64" cy="175" rx="3" ry="2.5" fill="#fff" />
+              <circle cx="65" cy="176" r="1.5" fill="#333" />
+              {/* Torso */}
+              <rect x="80" y="168" width="82" height="32" rx="12" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.5s ease-in-out infinite" }} />
+              <rect x="78" y="174" width="14" height="10" rx="5" fill={`url(#${uid}skinGrad)`} />
+              {/* Arms crossed on chest */}
+              <rect x="82" y="178" width="68" height="10" rx="5" fill={`url(#${uid}skinGrad)`} />
+              <rect x="82" y="188" width="60" height="10" rx="5" fill={`url(#${uid}skinGrad)`} opacity="0.7" />
+              {/* Hip area */}
+              <rect x="150" y="170" width="36" height="28" rx="11" fill={`url(#${uid}pantsGrad)`} />
+              {/* Knees rolling side to side */}
+              <g style={{ transformOrigin: "160px 196px", animation: "hipRollAnim 2.8s ease-in-out infinite" }}>
+                <line x1="160" y1="196" x2="188" y2="160" stroke={pants} strokeWidth="18" strokeLinecap="round" />
+                <line x1="173" y1="196" x2="200" y2="160" stroke={pantsDark} strokeWidth="16" strokeLinecap="round" />
+                {/* Feet */}
+                <ellipse cx="192" cy="201" rx="14" ry="6" fill={skinDark} />
+                <ellipse cx="204" cy="201" rx="12" ry="6" fill={skinDark} />
+              </g>
+            </g>
+          );
+        })()}
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 8: GLUTE BRIDGE / PELVIC LIFT */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 8 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="210" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="210" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              {/* Head flat */}
+              <ellipse cx="58" cy="198" rx="19" ry="18" fill={`url(#${uid}skinGrad)`} />
+              <ellipse cx="58" cy="182" rx="18" ry="8" fill={hair} />
+              <rect x="40" y="181" width="36" height="10" rx="5" fill={hair} />
+              <ellipse cx="64" cy="195" rx="3" ry="2.5" fill="#fff" />
+              <circle cx="65" cy="196" r="1.5" fill="#333" />
+              {/* Torso flat */}
+              <rect x="80" y="190" width="82" height="26" rx="12" fill={`url(#${uid}shirtGrad)`} />
+              <rect x="78" y="194" width="14" height="10" rx="5" fill={`url(#${uid}skinGrad)`} />
+              {/* Arms flat pressing floor */}
+              <rect x="82" y="212" width="70" height="11" rx="5" fill={`url(#${uid}skinGrad)`} />
+              {/* Hips lift up */}
+              <g style={{ animation: "gluteBridgeAnim 2.5s ease-in-out infinite" }}>
+                <rect x="148" y="172" width="40" height="28" rx="12" fill={`url(#${uid}pantsGrad)`} />
+              </g>
+              {/* Knees (also lift) */}
+              <g style={{ animation: "gluteBridgeKnee 2.5s ease-in-out infinite" }}>
+                <line x1="158" y1="212" x2="196" y2="176" stroke={pants} strokeWidth="17" strokeLinecap="round" />
+                <line x1="172" y1="212" x2="210" y2="176" stroke={pantsDark} strokeWidth="15" strokeLinecap="round" />
+              </g>
+              {/* Feet flat on mat */}
+              <ellipse cx="198" cy="213" rx="16" ry="7" fill={skinDark} />
+              <ellipse cx="212" cy="213" rx="14" ry="7" fill={skinDark} />
+            </g>
+          );
+        })()}
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 9: PRONE LEG LIFT */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 9 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="196" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="196" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              {/* Head turned (prone) */}
+              <ellipse cx="54" cy="186" rx="18" ry="17" fill={`url(#${uid}skinGrad)`} />
+              <ellipse cx="54" cy="172" rx="17" ry="7" fill={hair} />
+              <rect x="37" y="171" width="34" height="10" rx="5" fill={hair} />
+              <ellipse cx="61" cy="184" rx="3" ry="2.5" fill="#fff" />
+              <circle cx="62" cy="185" r="1.5" fill="#333" />
+              {/* Arms forward/under */}
+              <rect x="46" y="190" width="52" height="12" rx="6" fill={`url(#${uid}skinGrad)`} />
+              <rect x="56" y="200" width="40" height="10" rx="5" fill={`url(#${uid}skinGrad)`} opacity="0.7" />
+              {/* Torso face-down */}
+              <rect x="82" y="182" width="80" height="26" rx="12" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.5s ease-in-out infinite" }} />
+              {/* Hip area */}
+              <rect x="152" y="183" width="36" height="24" rx="11" fill={`url(#${uid}pantsGrad)`} />
+              {/* Right leg flat on mat */}
+              <rect x="186" y="188" width="90" height="16" rx="8" fill={pantsDark} />
+              <ellipse cx="276" cy="196" rx="11" ry="7" fill={skinDark} />
+              {/* Left leg lifts up */}
+              <g style={{ transformOrigin: "162px 192px", animation: "proneLegLiftAnim 2.5s ease-in-out infinite" }}>
+                <rect x="163" y="152" width="17" height="50" rx="8" fill={`url(#${uid}pantsGrad)`} />
+                <ellipse cx="171" cy="152" rx="9" ry="7" fill={skinDark} />
+              </g>
+            </g>
+          );
+        })()}
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 10: HIP EXTENSION PRONE (BENT KNEE LIFT) */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 10 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="196" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="196" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              {/* Head */}
+              <ellipse cx="54" cy="186" rx="18" ry="17" fill={`url(#${uid}skinGrad)`} />
+              <ellipse cx="54" cy="172" rx="17" ry="7" fill={hair} />
+              <rect x="37" y="171" width="34" height="10" rx="5" fill={hair} />
+              <ellipse cx="61" cy="184" rx="3" ry="2.5" fill="#fff" />
+              <circle cx="62" cy="185" r="1.5" fill="#333" />
+              {/* Arms */}
+              <rect x="46" y="190" width="52" height="12" rx="6" fill={`url(#${uid}skinGrad)`} />
+              {/* Torso */}
+              <rect x="82" y="182" width="80" height="26" rx="12" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.5s ease-in-out infinite" }} />
+              {/* Hip */}
+              <rect x="152" y="183" width="36" height="24" rx="11" fill={`url(#${uid}pantsGrad)`} />
+              {/* Right leg straight */}
+              <rect x="186" y="188" width="90" height="16" rx="8" fill={pantsDark} />
+              <ellipse cx="276" cy="196" rx="11" ry="7" fill={skinDark} />
+              {/* Left leg: thigh lifts + knee bends 90° */}
+              <g style={{ transformOrigin: "162px 192px", animation: "hipExtProneAnim 2.5s ease-in-out infinite" }}>
+                <rect x="163" y="162" width="17" height="38" rx="8" fill={`url(#${uid}pantsGrad)`} />
+                {/* Bent shin going upward */}
+                <rect x="152" y="140" width="14" height="34" rx="7" fill={`url(#${uid}pantsGrad)`} opacity="0.85" />
+                <ellipse cx="159" cy="140" rx="8" ry="6" fill={skinDark} />
+              </g>
+            </g>
+          );
+        })()}
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 11: BIRD DOG (All-Fours) */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 11 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="210" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="210" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              <ellipse cx="180" cy="218" rx="90" ry="6" fill={`url(#${uid}floorGlow)`} />
+              {/* Left hand on floor */}
+              <ellipse cx="88" cy="212" rx="12" ry="7" fill={skin} />
+              <rect x="82" y="182" width="14" height="36" rx="7" fill={`url(#${uid}skinGrad)`} />
+              {/* Right arm extends forward (animated) */}
+              <g style={{ transformOrigin: "148px 178px", animation: "birdDogArm 2.4s ease-in-out infinite" }}>
+                <rect x="102" y="172" width="60" height="13" rx="6" fill={`url(#${uid}skinGrad)`} />
+                <ellipse cx="162" cy="178" rx="10" ry="7" fill={skin} />
+              </g>
+              {/* Torso */}
+              <rect x="108" y="164" width="90" height="30" rx="14" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.4s ease-in-out infinite" }} />
+              {/* Head */}
+              <ellipse cx="98" cy="158" rx="18" ry="17" fill={`url(#${uid}skinGrad)`} />
+              <ellipse cx="98" cy="143" rx="16" ry="7" fill={hair} />
+              <rect x="82" y="142" width="32" height="10" rx="5" fill={hair} />
+              <ellipse cx="91" cy="156" rx="3" ry="2.5" fill="#fff" />
+              <circle cx="92" cy="157" r="1.5" fill="#333" />
+              {/* Hips */}
+              <rect x="190" y="165" width="36" height="28" rx="12" fill={`url(#${uid}pantsGrad)`} />
+              {/* Left knee on floor */}
+              <ellipse cx="200" cy="213" rx="14" ry="7" fill={pants} />
+              <rect x="194" y="186" width="14" height="32" rx="7" fill={`url(#${uid}pantsGrad)`} />
+              {/* Right leg extends back (animated) */}
+              <g style={{ transformOrigin: "220px 180px", animation: "birdDogLeg 2.4s ease-in-out infinite" }}>
+                <rect x="222" y="132" width="16" height="52" rx="8" fill={`url(#${uid}pantsGrad)`} />
+                <ellipse cx="230" cy="132" rx="9" ry="7" fill={skinDark} />
+              </g>
+            </g>
+          );
+        })()}
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 12: CHILD POSE ROCKING */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 12 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="210" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="210" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              <ellipse cx="180" cy="218" rx="90" ry="6" fill={`url(#${uid}floorGlow)`} />
+              {/* Body rocks forward/back */}
+              <g style={{ animation: "childRockAnim 2.6s ease-in-out infinite" }}>
+                {/* Hands on floor */}
+                <ellipse cx="96" cy="210" rx="12" ry="7" fill={skin} />
+                <ellipse cx="116" cy="210" rx="12" ry="7" fill={skinDark} opacity="0.7" />
+                {/* Arms stretched */}
+                <rect x="92" y="185" width="14" height="32" rx="7" fill={`url(#${uid}skinGrad)`} />
+                <rect x="108" y="185" width="12" height="30" rx="6" fill={`url(#${uid}skinGrad)`} opacity="0.7" />
+                {/* Head bowing */}
+                <ellipse cx="104" cy="176" rx="17" ry="16" fill={`url(#${uid}skinGrad)`} />
+                <ellipse cx="104" cy="162" rx="16" ry="7" fill={hair} />
+                <rect x="88" y="161" width="32" height="10" rx="5" fill={hair} />
+              </g>
+              {/* Torso curled over */}
+              <rect x="130" y="170" width="72" height="36" rx="14" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.6s ease-in-out infinite" }} />
+              {/* Hips sitting on heels */}
+              <rect x="192" y="172" width="40" height="30" rx="12" fill={`url(#${uid}pantsGrad)`} />
+              {/* Knees on mat */}
+              <ellipse cx="198" cy="211" rx="14" ry="7" fill={pants} />
+              <ellipse cx="215" cy="211" rx="12" ry="6" fill={pantsDark} />
+              {/* Shins/feet flat */}
+              <rect x="194" y="194" width="14" height="20" rx="7" fill={`url(#${uid}pantsGrad)`} />
+              <rect x="210" y="194" width="12" height="20" rx="6" fill={pantsDark} />
+              <ellipse cx="218" cy="211" rx="20" ry="7" fill={skinDark} opacity="0.8" />
+            </g>
+          );
+        })()}
+
+        {/* ═══════════════════════════════════════════════════ */}
+        {/* EXERCISE 13: PRESS UP (COBRA) */}
+        {/* ═══════════════════════════════════════════════════ */}
+        {exerciseId === 13 && (() => {
+          return (
+            <g filter={`url(#${uid}shadow)`}>
+              <rect x="30" y="210" width="260" height="22" rx="8" fill={mat} opacity="0.18" />
+              <rect x="30" y="210" width="260" height="6" rx="3" fill={mat} opacity="0.25" />
+              <ellipse cx="180" cy="218" rx="90" ry="6" fill={`url(#${uid}floorGlow)`} />
+              {/* Legs flat on mat */}
+              <rect x="160" y="198" width="110" height="18" rx="9" fill={`url(#${uid}pantsGrad)`} />
+              <ellipse cx="270" cy="207" rx="13" ry="8" fill={skinDark} />
+              {/* Hip on mat */}
+              <rect x="148" y="196" width="38" height="22" rx="11" fill={`url(#${uid}pantsGrad)`} />
+              {/* Hands on mat */}
+              <ellipse cx="120" cy="212" rx="13" ry="7" fill={skin} />
+              <ellipse cx="140" cy="212" rx="11" ry="7" fill={skinDark} opacity="0.8" />
+              {/* Arms push upper body up */}
+              <g style={{ animation: "pressUpArm 2.4s ease-in-out infinite" }}>
+                <rect x="116" y="175" width="14" height="42" rx="7" fill={`url(#${uid}skinGrad)`} />
+                <rect x="133" y="180" width="12" height="36" rx="6" fill={`url(#${uid}skinGrad)`} opacity="0.8" />
+              </g>
+              {/* Upper body arches up */}
+              <g style={{ animation: "pressUpAnim 2.4s ease-in-out infinite" }}>
+                {/* Torso */}
+                <rect x="120" y="142" width="50" height="46" rx="14" fill={`url(#${uid}shirtGrad)`} style={{ animation: "breathe 2.4s ease-in-out infinite" }} />
+                {/* Neck */}
+                <rect x="133" y="126" width="13" height="20" rx="6" fill={`url(#${uid}skinGrad)`} />
+                {/* Head tilts back/up */}
+                <ellipse cx="130" cy="116" rx="19" ry="18" fill={`url(#${uid}skinGrad)`} />
+                <ellipse cx="130" cy="100" rx="18" ry="8" fill={hair} />
+                <rect x="112" y="99" width="36" height="10" rx="5" fill={hair} />
+                <ellipse cx="136" cy="114" rx="3" ry="2.5" fill="#fff" />
+                <circle cx="137" cy="115" r="1.5" fill="#333" />
+                <path d="M 127 122 Q 131 126 135 122" stroke="#a06050" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              </g>
+            </g>
+          );
+        })()}
+
+        {/* Ambient live badge */}
         <g>
-          {/* Head */}
-          <circle cx={head.x} cy={head.y} r="8.5" fill="#090d16" stroke="#6366f1" strokeWidth="2.5" />
-          <circle cx={head.x - 2.5} cy={head.y - 1} r="1" fill="#f8fafc" /> {/* Eye/Face Direction indicator */}
-          
-          {/* Neck */}
-          <line x1={head.x} y1={head.y + 8.5} x2={shoulder.x} y2={shoulder.y} stroke="rgba(255,255,255,0.2)" strokeWidth="2.5" />
-          
-          {/* Shoulder */}
-          <JointNode cx={shoulder.x} cy={shoulder.y} />
-          
-          {/* Elbow */}
-          <JointNode cx={elbow.x} cy={elbow.y} />
-          
-          {/* Hand */}
-          <circle cx={hand.x} cy={hand.y} r="3" fill="#10b981" />
-          
-          {/* Hip */}
-          <JointNode cx={hip.x} cy={hip.y} />
-          
-          {/* Left Knee */}
-          <JointNode cx={knee1.x} cy={knee1.y} />
-          
-          {/* Left Ankle */}
-          <JointNode cx={ankle1.x} cy={ankle1.y} />
-          
-          {/* Right Knee */}
-          <circle cx={knee2.x} cy={knee2.y} r="3.5" fill="#090d16" stroke="rgba(20, 184, 166, 0.4)" strokeWidth="2" />
-          
-          {/* Right Ankle */}
-          <circle cx={ankle2.x} cy={ankle2.y} r="3.5" fill="#090d16" stroke="rgba(20, 184, 166, 0.4)" strokeWidth="2" />
+          <circle cx="288" cy="24" r="6" fill="rgba(20,184,166,0.15)" />
+          <circle cx="288" cy="24" r="3.5" fill="#14b8a6">
+            <animate attributeName="r" values="3.5;5;3.5" dur="1.4s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="1;0.4;1" dur="1.4s" repeatCount="indefinite" />
+          </circle>
         </g>
       </svg>
 
       {/* Visualizer Metadata Info Panel */}
-      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-20 pointer-events-none">
+      <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between z-20 pointer-events-none">
         <span className="text-[9px] font-bold text-teal-400/90 tracking-widest uppercase bg-slate-950/80 px-2.5 py-1 rounded-lg border border-teal-500/10 backdrop-blur-md shadow-lg">
-          {renderStyle} rehab state
+          {meta.pose} • {meta.label}
         </span>
         <span className="text-[9px] font-bold text-indigo-400/90 tracking-widest uppercase bg-slate-950/80 px-2.5 py-1 rounded-lg border border-indigo-500/10 backdrop-blur-md shadow-lg flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-ping"></span> 
-          Active Trajectory
+          <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-ping"></span>
+          Live Demo
         </span>
       </div>
     </div>
